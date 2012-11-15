@@ -85,6 +85,24 @@ class Database
     }
 
 
+    public function startTransaction()
+    {
+        $this->pdo->beginTransaction();
+    }
+
+
+    public function closeTransaction()
+    {
+        $this->pdo->commit();
+    }
+
+
+    public function cancelTransaction()
+    {
+        $this->pdo->rollback();
+    }
+
+
     public function table($table_name)
     {
         return new Table($this, $table_name);

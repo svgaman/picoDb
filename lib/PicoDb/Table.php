@@ -5,6 +5,9 @@ namespace PicoDb;
 class Table
 {
     private $table_name = '';
+    private $sql_limit = '';
+    private $sql_offset = '';
+    private $sql_order = '';
     private $conditions = array();
     private $or_conditions = array();
     private $is_or_condition = false;
@@ -59,7 +62,7 @@ class Table
     public function findAll()
     {
         $sql = sprintf(
-            'SELECT %s FROM %s'.$this->conditions(),
+            'SELECT %s FROM %s'.$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
             empty($this->columns) ? '*' : implode(', ', $columns),
             $this->db->escapeIdentifier($this->table_name)
         );
@@ -72,6 +75,15 @@ class Table
         }
 
         return $rq->fetchAll(\PDO::FETCH_CLASS);
+    }
+
+
+    public function findOne()
+    {
+        $this->limit(1);
+        $result = $this->findAll();
+
+        return isset($result[0]) ? $result[0] : null;
     }
 
 
@@ -88,9 +100,24 @@ class Table
     }
 
 
+    public function addCondition($sql)
+    {
+        if ($this->is_or_condition) {
+
+            $this->or_conditions[] = $sql;
+        }
+        else {
+
+            $this->conditions[] = $sql;
+        }
+    }
+
+
     public function beginOr()
     {
         $this->is_or_condition = true;
+        $this->or_conditions = array();
+        
         return $this;
     }
 
@@ -108,24 +135,82 @@ class Table
     }
 
 
-    public function equals($column, $value)
+    public function asc($column)
     {
-        $sql = sprintf(
-            '%s = %s',
-            $this->db->escapeIdentifier($column),
-            '?'
-        );
+        $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' ASC';
+        return $this;
+    }
 
-        if ($this->is_or_condition) {
 
-            $this->or_conditions[] = $sql;
+    public function desc($column)
+    {
+        $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' DESC';
+        return $this;
+    }
+
+
+    public function limit($value)
+    {
+        $this->sql_limit = ' LIMIT '.(int) $value;
+        return $this;
+    }
+
+
+    public function offset($value)
+    {
+        $this->sql_offset = ' OFFSET '.(int) $value;
+        return $this;
+    }
+
+
+    public function __call($name, array $arguments)
+    {
+        if (2 !== count($arguments)) {
+
+            throw new \LogicException('You must define a column and a value.');
         }
-        else {
 
-            $this->conditions[] = $sql;
-        }
+        $column = $arguments[0];
+        $sql = '';
         
-        $this->values[] = $value;
+        switch ($name) {
+
+            case 'like':
+                $sql = sprintf('%s LIKE ?', $this->db->escapeIdentifier($column));
+                break;
+
+            case 'eq':
+            case 'equal':
+            case 'equals':
+                $sql = sprintf('%s = ?', $this->db->escapeIdentifier($column));
+                break;
+
+            case 'gt':
+            case 'greaterThan':
+                $sql = sprintf('%s > ?', $this->db->escapeIdentifier($column));
+                break;
+
+            case 'lt':
+            case 'lowerThan':
+                $sql = sprintf('%s < ?', $this->db->escapeIdentifier($column));
+                break;
+
+            case 'gte':
+            case 'greaterThanOrEquals':
+                $sql = sprintf('%s >= ?', $this->db->escapeIdentifier($column));
+                break;
+
+            case 'lte':
+            case 'lowerThanOrEquals':
+                $sql = sprintf('%s <= ?', $this->db->escapeIdentifier($column));
+                break;
+        }
+
+        if ('' !== $sql) {
+
+            $this->addCondition($sql);
+            $this->values[] = $arguments[1];
+        }
 
         return $this;
     }

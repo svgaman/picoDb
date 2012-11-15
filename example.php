@@ -15,12 +15,13 @@ $db->table('toto')
 
 print_r($db->table('toto')
            ->beginOr()
-           ->equals('bla', 'hey')
-           ->equals('bla', 'hy')
+           ->eq('bla', 'hey')
+           ->gt('bla', 'hy')
            ->closeOr()
            ->equals('bla', 'hey')
            ->findAll()
 );
 
+print_r($db->table('toto')->like('bla', 'he%')->asc('bla')->findOne());
 
 print_r($db->getLogMessages());
