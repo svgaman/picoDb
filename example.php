@@ -24,4 +24,8 @@ print_r($db->table('toto')
 
 print_r($db->table('toto')->like('bla', 'he%')->asc('bla')->findOne());
 
+$db->table('toto')
+   ->eq('bla', 'hey')
+   ->save(array('bla' => 'toto'));
+
 print_r($db->getLogMessages());
