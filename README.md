@@ -1,8 +1,8 @@
 PicoDb: A minimalist database query builder for PHP
 ===================================================
 
-PicoDb is a simple PHP library to use a relational database. 
-**It's not an ORM**. 
+PicoDb is a simple PHP library to use a relational database.
+**It's not an ORM**.
 
 Features
 --------
@@ -52,4 +52,20 @@ Examples
        ->equals('column1', 'hey')
        ->findAll();
 
-    Yout got: 'SELECT * FROM toto WHERE column1=?'
+or
+
+    $db->table('toto')
+       ->eq('column1', 'hey')
+       ->findAll();
+
+Yout got: 'SELECT * FROM toto WHERE column1=?'
+
+## Update something
+
+    $db->table('toto')->eq('id', 1)->save(['column1' => 'hey']);
+
+You just need to add a condition to perform an update.
+
+## Remove rows
+
+    $db->table('toto')->lowerThan('column1', 10)->remove();
