@@ -5,7 +5,6 @@ namespace PicoDb;
 class Database
 {
     private $logs = array();
-    private $identifer = '"';
     private $pdo;
 
 
@@ -13,28 +12,26 @@ class Database
     {
         if (! isset($settings['driver'])) {
 
-            throw new LogicException('You must define a database driver.');
+            throw new \LogicException('You must define a database driver.');
         }
 
         switch ($settings['driver']) {
 
             case 'sqlite':
-                $this->pdo = new \PDO('sqlite:'.$settings['filename']);
-                $this->pdo->exec('PRAGMA foreign_keys = ON');
-                $this->identifier = '"';
+                require_once __DIR__.'/Drivers/Sqlite.php';
+                $this->pdo = new Sqlite($settings['filename']);
                 break;
-
+/*
             case 'mysql':
                 $this->pdo = new \PDO(
                     'mysql:host='.$settings['hostname'].';dbname='.$settings['dbname'],
                     $settings['username'],
                     $settings['password']
                 );
-                $this->identifier = '`';
-                break;
+                break;*/
 
             default:
-                throw new LogicException('This database driver is not supported.');
+                throw new \LogicException('This database driver is not supported.');
         }
 
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -59,9 +56,9 @@ class Database
     }
 
 
-    public function escapeIdentifier($identifier)
+    public function escapeIdentifier($value)
     {
-        return $this->identifier.$identifier.$this->identifier;
+        return $this->pdo->escapeIdentifier($value);
     }
 
 
@@ -106,5 +103,12 @@ class Database
     public function table($table_name)
     {
         return new Table($this, $table_name);
+    }
+
+
+    public function schema()
+    {
+        require_once __DIR__.'/Schema.php';
+        return new Schema($this);
     }
 }

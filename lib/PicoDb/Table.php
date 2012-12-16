@@ -30,12 +30,39 @@ class Table
     {
         if (! empty($this->conditions)) {
 
-            // Update
+            return $this->update($data);
         }
         else {
 
             return $this->insert($data);
         }
+    }
+
+
+    public function update(array $data)
+    {
+        $columns = array();
+        $values = array();
+
+        foreach ($data as $column => $value) {
+
+            $columns[] = $this->db->escapeIdentifier($column).'=?';
+            $values[] = $value;
+        }
+
+        foreach ($this->values as $value) {
+
+            $values[] = $value;
+        }
+
+        $sql = sprintf(
+            'UPDATE %s SET %s %s',
+            $this->db->escapeIdentifier($this->table_name),
+            implode(', ', $columns),
+            $this->conditions()
+        );
+
+        return false !== $this->db->execute($sql, $values);
     }
 
 
@@ -56,7 +83,19 @@ class Table
         );
 
         return false !== $this->db->execute($sql, array_values($data));
-    }  
+    }
+
+
+    public function remove()
+    {
+        $sql = sprintf(
+            'DELETE FROM %s %s',
+            $this->db->escapeIdentifier($this->table_name),
+            $this->conditions()
+        );
+
+        return false !== $this->db->execute($sql, $this->values);
+    }
 
 
     public function findAll()
@@ -117,7 +156,7 @@ class Table
     {
         $this->is_or_condition = true;
         $this->or_conditions = array();
-        
+
         return $this;
     }
 
@@ -172,7 +211,7 @@ class Table
 
         $column = $arguments[0];
         $sql = '';
-        
+
         switch ($name) {
 
             case 'like':
