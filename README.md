@@ -73,7 +73,9 @@ or
 
     $db->table('toto')->columns('column1', 'column2')->findAll();
 
-## Equals condition
+## Conditions
+
+### Equals condition
 
     $db->table('toto')
        ->equals('column1', 'hey')
@@ -87,19 +89,19 @@ or
 
 Yout got: 'SELECT * FROM toto WHERE column1=?'
 
-## IN condition
+### IN condition
 
     $db->table('toto')
            ->in('column1', ['hey', 'bla'])
            ->findAll();
 
-## Like condition
+### Like condition
 
     $db->table('toto')
        ->like('column1', '%hey%')
        ->findAll();
 
-## Lower than
+### Lower than
 
     $db->table('toto')
        ->lowerThan('column1', 2)
@@ -111,7 +113,7 @@ or
        ->lt('column1', 2)
        ->findAll();
 
-## Lower than or equals
+### Lower than or equals
 
     $db->table('toto')
        ->lowerThanOrEquals('column1', 2)
@@ -123,7 +125,7 @@ or
        ->lte('column1', 2)
        ->findAll();
 
-## Greater than
+### Greater than
 
     $db->table('toto')
        ->greaterThan('column1', 3)
@@ -135,7 +137,7 @@ or
        ->gt('column1', 3)
        ->findAll();
 
-## Greater than or equals
+### Greater than or equals
 
     $db->table('toto')
        ->greaterThanOrEquals('column1', 3)
@@ -147,7 +149,7 @@ or
         ->gte('column1', 3)
         ->findAll();
 
-## Multiple conditions
+### Multiple conditions
 
 Each condition is joined by a AND.
 
@@ -173,6 +175,7 @@ How to make a OR condition:
 - Migrations are defined in simple functions inside a namespace named "Schema".
 - An instance of PDO is passed to first argument of the function.
 - Function names has the version number at the end.
+
 
     namespace Schema;
 
@@ -200,12 +203,14 @@ How to make a OR condition:
     }
 
 
+
 ### Run schema update automatically
 
 - The method "check()" executes all migrations until to reach the correct version number.
 - If we are already on the last version nothing will happen.
 - The schema version for the driver Sqlite is stored inside a variable (PRAGMA user_version)
 - You can use that with a dependency injection controller.
+
 
     $last_schema_version = 5;
 
