@@ -12,6 +12,7 @@ Features
 - Easy to use, fast and very lightweight
 - You can use it with a dependency injection container
 - Use prepared statements
+- Handle schema versions (migrations)
 
 Requirements
 ------------
@@ -20,8 +21,8 @@ Requirements
 - PDO
 - A database: Sqlite, Mysql or Postgresql
 
-Examples
---------
+Documentation
+-------------
 
 ## Connect to your database
 
@@ -43,8 +44,34 @@ Examples
 
     foreach ($records as $record) {
 
-        var_dump($record->column1);
+        var_dump($record['column1']);
     }
+
+## Update something
+
+    $db->table('toto')->eq('id', 1)->save(['column1' => 'hey']);
+
+You just need to add a condition to perform an update.
+
+## Remove rows
+
+    $db->table('toto')->lowerThan('column1', 10)->remove();
+
+## Sorting
+
+    $db->table('toto')->asc('column1')->findAll();
+
+or
+
+    $db->table('toto')->desc('column1')->findAll();
+
+## Limit and offset
+
+    $db->table('toto')->limit(10)->offset(5)->findAll();
+
+## Fetch only some columns
+
+    $db->table('toto')->columns('column1', 'column2')->findAll();
 
 ## Equals condition
 
@@ -60,12 +87,138 @@ or
 
 Yout got: 'SELECT * FROM toto WHERE column1=?'
 
-## Update something
+## IN condition
 
-    $db->table('toto')->eq('id', 1)->save(['column1' => 'hey']);
+    $db->table('toto')
+           ->in('column1', ['hey', 'bla'])
+           ->findAll();
 
-You just need to add a condition to perform an update.
+## Like condition
 
-## Remove rows
+    $db->table('toto')
+       ->like('column1', '%hey%')
+       ->findAll();
 
-    $db->table('toto')->lowerThan('column1', 10)->remove();
+## Lower than
+
+    $db->table('toto')
+       ->lowerThan('column1', 2)
+       ->findAll();
+
+or
+
+    $db->table('toto')
+       ->lt('column1', 2)
+       ->findAll();
+
+## Lower than or equals
+
+    $db->table('toto')
+       ->lowerThanOrEquals('column1', 2)
+       ->findAll();
+
+or
+
+    $db->table('toto')
+       ->lte('column1', 2)
+       ->findAll();
+
+## Greater than
+
+    $db->table('toto')
+       ->greaterThan('column1', 3)
+       ->findAll();
+
+or
+
+    $db->table('toto')
+       ->gt('column1', 3)
+       ->findAll();
+
+## Greater than or equals
+
+    $db->table('toto')
+       ->greaterThanOrEquals('column1', 3)
+       ->findAll();
+
+or
+
+    $db->table('toto')
+        ->gte('column1', 3)
+        ->findAll();
+
+## Multiple conditions
+
+Each condition is joined by a AND.
+
+    $db->table('toto')
+        ->like('column2', '%toto')
+        ->gte('column1', 3)
+        ->findAll();
+
+How to make a OR condition:
+
+    $db->table('toto')
+        ->beginOr()
+        ->like('column2', '%toto')
+        ->gte('column1', 3)
+        ->closeOr()
+        ->eq('column5', 'titi')
+        ->findAll();
+
+## Schema migrations
+
+### Define a migration
+
+- Migrations are defined in simple functions inside a namespace named "Schema".
+- An instance of PDO is passed to first argument of the function.
+- Function names has the version number at the end.
+
+    namespace Schema;
+
+    function version_1($pdo)
+    {
+        $pdo->exec('
+            CREATE TABLE users (
+                id INTEGER PRIMARY KEY,
+                name TEXT UNIQUE,
+                email TEXT UNIQUE,
+                password TEXT
+            )
+        ');
+    }
+
+
+    function version_2($pdo)
+    {
+        $pdo->exec('
+            CREATE TABLE tags (
+                id INTEGER PRIMARY KEY,
+                name TEXT UNIQUE
+            )
+        ');
+    }
+
+
+### Run schema update automatically
+
+- The method "check()" executes all migrations until to reach the correct version number.
+- If we are already on the last version nothing will happen.
+- The schema version for the driver Sqlite is stored inside a variable (PRAGMA user_version)
+- You can use that with a dependency injection controller.
+
+    $last_schema_version = 5;
+
+    $db = new PicoDb\Database(array(
+        'driver' => 'sqlite',
+        'filename' => '/tmp/mydb.sqlite'
+    ));
+
+    if ($db->schema()->check($last_schema_version)) {
+
+        // Do something...
+    }
+    else {
+
+        die('Unable to migrate database schema.');
+    }

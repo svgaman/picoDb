@@ -98,11 +98,27 @@ class Table
     }
 
 
+    public function listing($key, $value)
+    {
+        $this->columns($key, $value);
+
+        $listing = array();
+        $results = $this->findAll();
+
+        foreach ($results as $result) {
+
+            $listing[$result[$key]] = $result[$value];
+        }
+
+        return $listing;
+    }
+
+
     public function findAll()
     {
         $sql = sprintf(
             'SELECT %s FROM %s'.$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
-            empty($this->columns) ? '*' : implode(', ', $columns),
+            empty($this->columns) ? '*' : implode(', ', $this->columns),
             $this->db->escapeIdentifier($this->table_name)
         );
 
@@ -113,7 +129,7 @@ class Table
             return false;
         }
 
-        return $rq->fetchAll(\PDO::FETCH_CLASS);
+        return $rq->fetchAll(\PDO::FETCH_ASSOC);
     }
 
 
@@ -202,6 +218,13 @@ class Table
     }
 
 
+    public function columns()
+    {
+        $this->columns = \func_get_args();
+        return $this;
+    }
+
+
     public function __call($name, array $arguments)
     {
         if (2 !== count($arguments)) {
@@ -213,6 +236,17 @@ class Table
         $sql = '';
 
         switch ($name) {
+
+            case 'in':
+                if (is_array($arguments[1])) {
+
+                    $sql = sprintf(
+                        '%s IN (%s)',
+                        $this->db->escapeIdentifier($column),
+                        implode(', ', array_fill(0, count($arguments[1]), '?'))
+                    );
+                }
+                break;
 
             case 'like':
                 $sql = sprintf('%s LIKE ?', $this->db->escapeIdentifier($column));
@@ -248,7 +282,18 @@ class Table
         if ('' !== $sql) {
 
             $this->addCondition($sql);
-            $this->values[] = $arguments[1];
+
+            if (is_array($arguments[1])) {
+
+                foreach ($arguments[1] as $value) {
+
+                    $this->values[] = $value;
+                }
+            }
+            else {
+
+                $this->values[] = $arguments[1];
+            }
         }
 
         return $this;
