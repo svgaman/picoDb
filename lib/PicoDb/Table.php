@@ -8,6 +8,7 @@ class Table
     private $sql_limit = '';
     private $sql_offset = '';
     private $sql_order = '';
+    private $joins = array();
     private $conditions = array();
     private $or_conditions = array();
     private $is_or_condition = false;
@@ -105,9 +106,12 @@ class Table
         $listing = array();
         $results = $this->findAll();
 
-        foreach ($results as $result) {
+        if ($results) {
 
-            $listing[$result[$key]] = $result[$value];
+            foreach ($results as $result) {
+
+                $listing[$result[$key]] = $result[$value];
+            }
         }
 
         return $listing;
@@ -117,9 +121,14 @@ class Table
     public function findAll()
     {
         $sql = sprintf(
-            'SELECT %s FROM %s'.$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            'SELECT %s FROM %s %s %s %s %s %s',
             empty($this->columns) ? '*' : implode(', ', $this->columns),
-            $this->db->escapeIdentifier($this->table_name)
+            $this->db->escapeIdentifier($this->table_name),
+            implode(' ', $this->joins),
+            $this->conditions(),
+            $this->sql_order,
+            $this->sql_limit,
+            $this->sql_offset
         );
 
         $rq = $this->db->execute($sql, $this->values);
@@ -139,6 +148,39 @@ class Table
         $result = $this->findAll();
 
         return isset($result[0]) ? $result[0] : null;
+    }
+
+
+    public function count()
+    {
+        $sql = sprintf(
+            'SELECT COUNT(*) AS count FROM %s'.$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            $this->db->escapeIdentifier($this->table_name)
+        );
+
+        $rq = $this->db->execute($sql, $this->values);
+
+        if (false === $rq) {
+
+            return false;
+        }
+
+        $result = $rq->fetch(\PDO::FETCH_ASSOC);
+
+        return isset($result['count']) ? (int) $result['count'] : 0;
+    }
+
+
+    public function join($table, $foreign_column, $local_column)
+    {
+        $this->joins[] = sprintf(
+            'LEFT JOIN %s ON %s=%s',
+            $this->db->escapeIdentifier($table),
+            $this->db->escapeIdentifier($table).'.'.$this->db->escapeIdentifier($foreign_column),
+            $this->db->escapeIdentifier($this->table_name).'.'.$this->db->escapeIdentifier($local_column)
+        );
+
+        return $this;
     }
 
 
