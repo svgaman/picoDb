@@ -21,6 +21,12 @@ Requirements
 - PDO
 - A database: Sqlite, Mysql or Postgresql
 
+Todo
+----
+
+- Support only Sqlite at this time, needs to support Mysql and Postgresql
+- Add support for Distinct, Group By, etc...
+
 Documentation
 -------------
 
@@ -176,6 +182,7 @@ How to make a OR condition:
 - An instance of PDO is passed to first argument of the function.
 - Function names has the version number at the end.
 
+Example:
 
     namespace Schema;
 
@@ -202,8 +209,6 @@ How to make a OR condition:
         ');
     }
 
-
-
 ### Run schema update automatically
 
 - The method "check()" executes all migrations until to reach the correct version number.
@@ -211,6 +216,7 @@ How to make a OR condition:
 - The schema version for the driver Sqlite is stored inside a variable (PRAGMA user_version)
 - You can use that with a dependency injection controller.
 
+Example:
 
     $last_schema_version = 5;
 
