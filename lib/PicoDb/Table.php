@@ -63,7 +63,14 @@ class Table
             $this->conditions()
         );
 
-        return false !== $this->db->execute($sql, $values);
+        $result = $this->db->execute($sql, $values);
+
+        if ($result !== false && $result->rowCount() > 0) {
+
+            return true;
+        }
+
+        return false;
     }
 
 
