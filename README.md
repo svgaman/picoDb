@@ -13,6 +13,7 @@ Features
 - You can use it with a dependency injection container
 - Use prepared statements
 - Handle schema versions (migrations)
+- License: [WTFPL](http://www.wtfpl.net)
 
 Requirements
 ------------
