@@ -248,14 +248,26 @@ class Table
 
     public function asc($column)
     {
-        $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' ASC';
+        if ($this->sql_order === '') {
+            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' ASC';
+        }
+        else {
+            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' ASC';
+        }
+
         return $this;
     }
 
 
     public function desc($column)
     {
-        $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' DESC';
+        if ($this->sql_order === '') {
+            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' DESC';
+        }
+        else {
+            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' DESC';
+        }
+
         return $this;
     }
 
