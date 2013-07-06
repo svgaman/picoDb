@@ -274,14 +274,14 @@ class Table
 
     public function limit($value)
     {
-        $this->sql_limit = ' LIMIT '.(int) $value;
+        if (! is_null($value)) $this->sql_limit = ' LIMIT '.(int) $value;
         return $this;
     }
 
 
     public function offset($value)
     {
-        $this->sql_offset = ' OFFSET '.(int) $value;
+        if (! is_null($value)) $this->sql_offset = ' OFFSET '.(int) $value;
         return $this;
     }
 
