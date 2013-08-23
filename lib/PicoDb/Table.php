@@ -325,9 +325,15 @@ class Table
     }
 
 
-    public function columns()
+    public function columns($column)
     {
-        $this->columns = \func_get_args();
+        if (is_array($column)) {
+            $this->columns = $column;
+        }
+        else {
+            $this->columns = \func_get_args();
+        }
+
         return $this;
     }
 
