@@ -260,13 +260,10 @@ class Table
     }
 
 
-    public function orderBy($column)
+    public function orderBy($column, $order = 'ASC')
     {
-        if ($column[0] == '-') {
-            $order = 'DESC';
-        } else {
-            $order = 'ASC';
-        }
+        $order = strtoupper($order);
+        $order = $order === 'ASC' || $order === 'DESC' ? $order : 'ASC';
 
         if ($this->sql_order === '') {
             $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.$order;
@@ -326,15 +323,9 @@ class Table
     }
 
 
-    public function columns($column)
+    public function columns()
     {
-        if (is_array($column)) {
-            $this->columns = $column;
-        }
-        else {
-            $this->columns = \func_get_args();
-        }
-
+        $this->columns = \func_get_args();
         return $this;
     }
 
