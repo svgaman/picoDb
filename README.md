@@ -1,7 +1,7 @@
-PicoDb: A minimalist database query builder for PHP
-===================================================
+PicoDb
+======
 
-PicoDb is a simple PHP library to use a relational database.
+PicoDb is a minimalist database query builder for PHP
 **It's not an ORM**.
 
 Features
@@ -18,7 +18,7 @@ Features
 Requirements
 ------------
 
-- PHP >= 5.3 or 5.4
+- PHP >= 5.3
 - PDO
 - A database: Sqlite, Mysql or Postgresql
 
@@ -234,3 +234,25 @@ Example:
 
         die('Unable to migrate database schema.');
     }
+
+### Use a singleton to handle database instances
+
+  // Setup a new instance
+
+  PicoDb\Database::bootstrap('myinstance', function() {
+
+      $db = new PicoDb\Database(array(
+          'driver' => 'sqlite',
+          'filename' => DB_FILENAME
+      ));
+
+      if ($db->schema()->check(DB_VERSION)) {
+          return $db;
+      }
+      else {
+          die('Unable to migrate database schema.');
+      }
+  });
+
+  // Get this instance anywhere in your code
+  PicoDb\Database::get('myinstance')->table(...)
