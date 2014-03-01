@@ -7,10 +7,8 @@ PicoDb is a minimalist database query builder for PHP
 Features
 --------
 
-- Query builder in PHP5
 - No dependency
 - Easy to use, fast and very lightweight
-- You can use it with a dependency injection container
 - Use prepared statements
 - Handle schema versions (migrations)
 - License: [WTFPL](http://www.wtfpl.net)
@@ -25,8 +23,8 @@ Requirements
 Todo
 ----
 
-- Support only Sqlite at this time, needs to support Mysql and Postgresql
-- Add support for Distinct, Group By, etc...
+- Add driver for Postgresql
+- Add support for Distinct...
 
 Documentation
 -------------
@@ -35,7 +33,19 @@ Documentation
 
     use PicoDb\Database;
 
+    // Sqlite driver
     $db = new Database(['driver' => 'sqlite', 'filename' => ':memory:']);
+
+    // Mysql driver
+    // Optional options: "schema_table" (the default table name is "schema_version")
+    $db = new Database(array(
+        'driver' => 'mysql',
+        'hostname' => 'localhost',
+        'username' => 'root',
+        'password' => '',
+        'database' => 'my_db_name',
+        'charset' => 'utf8',
+    ));
 
 ## Execute a SQL request
 
@@ -50,7 +60,6 @@ Documentation
     $records = $db->table('toto')->findAll();
 
     foreach ($records as $record) {
-
         var_dump($record['column1']);
     }
 
@@ -237,22 +246,23 @@ Example:
 
 ### Use a singleton to handle database instances
 
-  // Setup a new instance
+Setup a new instance:
 
-  PicoDb\Database::bootstrap('myinstance', function() {
+    PicoDb\Database::bootstrap('myinstance', function() {
 
-      $db = new PicoDb\Database(array(
-          'driver' => 'sqlite',
-          'filename' => DB_FILENAME
-      ));
+        $db = new PicoDb\Database(array(
+            'driver' => 'sqlite',
+            'filename' => DB_FILENAME
+        ));
 
-      if ($db->schema()->check(DB_VERSION)) {
-          return $db;
-      }
-      else {
-          die('Unable to migrate database schema.');
-      }
-  });
+        if ($db->schema()->check(DB_VERSION)) {
+            return $db;
+        }
+        else {
+            die('Unable to migrate database schema.');
+        }
+    });
 
-  // Get this instance anywhere in your code
-  PicoDb\Database::get('myinstance')->table(...)
+Get this instance anywhere in your code:
+
+    PicoDb\Database::get('myinstance')->table(...)
