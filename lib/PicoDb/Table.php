@@ -207,13 +207,13 @@ class Table
     }
 
 
-    public function join($table, $foreign_column, $local_column)
+    public function join($table, $foreign_column, $local_column, $local_table = null)
     {
         $this->joins[] = sprintf(
             'LEFT JOIN %s ON %s=%s',
             $this->db->escapeIdentifier($table),
             $this->db->escapeIdentifier($table).'.'.$this->db->escapeIdentifier($foreign_column),
-            $this->db->escapeIdentifier($this->table_name).'.'.$this->db->escapeIdentifier($local_column)
+            $this->db->escapeIdentifier($local_table ?: $this->table_name).'.'.$this->db->escapeIdentifier($local_column)
         );
 
         return $this;
