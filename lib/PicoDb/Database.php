@@ -227,6 +227,42 @@ class Database
     }
 
     /**
+     * Begin a transaction
+     *
+     * @access public
+     */
+    public function startTransaction()
+    {
+        if (! $this->pdo->inTransaction()) {
+            $this->pdo->beginTransaction();
+        }
+    }
+
+    /**
+     * Commit a transaction
+     *
+     * @access public
+     */
+    public function closeTransaction()
+    {
+        if ($this->pdo->inTransaction()) {
+            $this->pdo->commit();
+        }
+    }
+
+    /**
+     * Rollback a transaction
+     *
+     * @access public
+     */
+    public function cancelTransaction()
+    {
+        if ($this->pdo->inTransaction()) {
+            $this->pdo->rollback();
+        }
+    }
+
+    /**
      * Get a table instance
      *
      * @access public
