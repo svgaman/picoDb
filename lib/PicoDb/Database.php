@@ -209,7 +209,13 @@ class Database
 
             $this->pdo->beginTransaction();
             $result = $callback($this);
-            $this->pdo->commit();
+
+            if ($result === false) {
+                $this->pdo->rollback();
+            }
+            else {
+                $this->pdo->commit();
+            }
         }
         catch (PDOException $e) {
             $this->pdo->rollback();
