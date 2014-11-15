@@ -201,19 +201,23 @@ class Database
      *
      * @access public
      * @param  Closure    $callback     Callback
+     * @return mixed
      */
     public function transaction(Closure $callback)
     {
         try {
 
             $this->pdo->beginTransaction();
-            $callback($this);
+            $result = $callback($this);
             $this->pdo->commit();
         }
         catch (PDOException $e) {
             $this->pdo->rollback();
-            throw $e;
+            $this->setLogMessage($e->getMessage());
+            $result = false;
         }
+
+        return $result === null ? true : $result;
     }
 
     /**
