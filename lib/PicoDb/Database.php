@@ -187,13 +187,17 @@ class Database
      */
     public function execute($sql, array $values = array())
     {
-        $this->setLogMessage($sql);
-        $this->setLogMessage(implode(', ', $values));
+        try {
 
-        $rq = $this->pdo->prepare($sql);
-        $rq->execute($values);
-
-        return $rq;
+            $this->setLogMessage($sql);
+            $rq = $this->pdo->prepare($sql);
+            $rq->execute($values);
+            return $rq;
+        }
+        catch (PDOException $e) {
+            $this->setLogMessage($e->getMessage());
+            return false;
+        }
     }
 
     /**
