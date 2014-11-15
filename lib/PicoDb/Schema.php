@@ -2,16 +2,16 @@
 
 namespace PicoDb;
 
+use PDOException;
+
 class Schema
 {
     protected $db = null;
-
 
     public function __construct(Database $db)
     {
         $this->db = $db;
     }
-
 
     public function check($last_version = 1)
     {
@@ -23,7 +23,6 @@ class Schema
 
         return true;
     }
-
 
     public function migrateTo($current_version, $next_version)
     {
@@ -43,7 +42,7 @@ class Schema
 
             $this->db->closeTransaction();
         }
-        catch (\PDOException $e) {
+        catch (PDOException $e) {
             $this->db->setLogMessage($function_name.' => '.$e->getMessage());
             $this->db->cancelTransaction();
             return false;

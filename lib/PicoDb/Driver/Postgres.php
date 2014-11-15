@@ -1,9 +1,12 @@
 <?php
 
-namespace PicoDb;
+namespace PicoDb\Driver;
 
-class Postgres extends \PDO {
+use PDO;
+use LogicException;
 
+class Postgres extends PDO
+{
     private $schema_table = 'schema_version';
 
 
@@ -18,7 +21,7 @@ class Postgres extends \PDO {
 
         foreach ($required_atttributes as $attribute) {
             if (! isset($settings[$attribute])) {
-                throw new \LogicException('This configuration parameter is missing: "'.$attribute.'"');
+                throw new LogicException('This configuration parameter is missing: "'.$attribute.'"');
             }
         }
 
@@ -38,7 +41,7 @@ class Postgres extends \PDO {
 
         $rq = $this->prepare('SELECT version FROM '.$this->schema_table.'');
         $rq->execute();
-        $result = $rq->fetch(\PDO::FETCH_ASSOC);
+        $result = $rq->fetch(PDO::FETCH_ASSOC);
 
         if (isset($result['version'])) {
             return (int) $result['version'];

@@ -1,11 +1,13 @@
 <?php
 
-namespace PicoDb;
+namespace PicoDb\Driver;
 
-class Mysql extends \PDO {
+use PDO;
+use LogicException;
 
+class Mysql extends PDO
+{
     private $schema_table = 'schema_version';
-
 
     public function __construct(array $settings)
     {
@@ -19,13 +21,13 @@ class Mysql extends \PDO {
 
         foreach ($required_atttributes as $attribute) {
             if (! isset($settings[$attribute])) {
-                throw new \LogicException('This configuration parameter is missing: "'.$attribute.'"');
+                throw new LogicException('This configuration parameter is missing: "'.$attribute.'"');
             }
         }
 
         $dsn = 'mysql:host='.$settings['hostname'].';dbname='.$settings['database'];
         $options = array(
-            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.$settings['charset']
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.$settings['charset']
         );
 
         parent::__construct($dsn, $settings['username'], $settings['password'], $options);
@@ -42,7 +44,7 @@ class Mysql extends \PDO {
 
         $rq = $this->prepare('SELECT `version` FROM `'.$this->schema_table.'`');
         $rq->execute();
-        $result = $rq->fetch(\PDO::FETCH_ASSOC);
+        $result = $rq->fetch(PDO::FETCH_ASSOC);
 
         if (isset($result['version'])) {
             return (int) $result['version'];

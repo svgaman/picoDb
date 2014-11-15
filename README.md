@@ -55,6 +55,13 @@ Documentation
 
     $db->table('toto')->save(['column1' => 'hey']);
 
+## Transations
+
+    $db->transaction(function($db) {
+        $db->table('toto')->save(['column1' => 'foo']);
+        $db->table('toto')->save(['column1' => 'bar']);
+    });
+
 ## Fetch all data
 
     $records = $db->table('toto')->findAll();

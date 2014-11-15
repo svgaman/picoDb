@@ -1,10 +1,12 @@
 <?php
 
-namespace PicoDb;
+namespace PicoDb\Driver;
 
-class Sqlite extends \PDO {
+use PDO;
+use LogicException;
 
-
+class Sqlite extends PDO
+{
     public function __construct(array $settings)
     {
         $required_atttributes = array(
@@ -13,7 +15,7 @@ class Sqlite extends \PDO {
 
         foreach ($required_atttributes as $attribute) {
             if (! isset($settings[$attribute])) {
-                throw new \LogicException('This configuration parameter is missing: "'.$attribute.'"');
+                throw new LogicException('This configuration parameter is missing: "'.$attribute.'"');
             }
         }
 
@@ -27,7 +29,7 @@ class Sqlite extends \PDO {
     {
         $rq = $this->prepare('PRAGMA user_version');
         $rq->execute();
-        $result = $rq->fetch(\PDO::FETCH_ASSOC);
+        $result = $rq->fetch(PDO::FETCH_ASSOC);
 
         if (isset($result['user_version'])) {
             return (int) $result['user_version'];
