@@ -25,9 +25,10 @@ class Mysql extends PDO
             }
         }
 
-        $dsn = 'mysql:host='.$settings['hostname'].';dbname='.$settings['database'];
+        $dsn = 'mysql:host='.$settings['hostname'].';dbname='.$settings['database'].';charset='.$settings['charset'];
+
         $options = array(
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES '.$settings['charset']
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = STRICT_ALL_TABLES',
         );
 
         parent::__construct($dsn, $settings['username'], $settings['password'], $options);
