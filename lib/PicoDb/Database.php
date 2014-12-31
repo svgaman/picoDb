@@ -38,6 +38,14 @@ class Database
     private $pdo;
 
     /**
+     * Flag to calculate query time
+     *
+     * @access public
+     * @var boolean
+     */
+    public $stopwatch = false;
+
+    /**
      * Constructor, iniatlize a PDO driver
      *
      * @access public
@@ -190,8 +198,18 @@ class Database
         try {
 
             $this->setLogMessage($sql);
+
+            if ($this->stopwatch) {
+                $start = microtime(true);
+            }
+
             $rq = $this->pdo->prepare($sql);
             $rq->execute($values);
+
+            if ($this->stopwatch) {
+                $this->setLogMessage('DURATION='.(microtime(true) - $start));
+            }
+
             return $rq;
         }
         catch (PDOException $e) {
