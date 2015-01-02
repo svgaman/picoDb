@@ -6,6 +6,7 @@ use Closure;
 use PDO;
 use PDOException;
 use LogicException;
+use RuntimeException;
 use Picodb\Driver\Sqlite;
 use Picodb\Driver\Mysql;
 use Picodb\Driver\Postgres;
@@ -234,7 +235,7 @@ class Database
         }
         catch (PDOException $e) {
             $this->setLogMessage($e->getMessage());
-            return false;
+            throw new RuntimeException('SQL error');
         }
     }
 
