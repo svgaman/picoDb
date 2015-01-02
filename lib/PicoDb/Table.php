@@ -56,7 +56,7 @@ class Table
     /**
      * Update
      *
-     * Note: Do not use `rowCount()` the behaviour is different across drivers
+     * Note: Do not use `rowCount()` for update the behaviour is different across drivers
      *
      * @access public
      * @param  array   $data
@@ -108,7 +108,7 @@ class Table
             implode(', ', array_fill(0, count($data), '?'))
         );
 
-        return false !== $this->db->execute($sql, array_values($data));
+        return $this->db->execute($sql, array_values($data)) !== false;
     }
 
     /**

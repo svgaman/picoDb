@@ -208,7 +208,7 @@ class Database
      * @access public
      * @param  string    $sql      SQL query
      * @param  array     $values   Values
-     * @return PDOStatement
+     * @return PDOStatement|false
      */
     public function execute($sql, array $values = array())
     {
@@ -234,7 +234,13 @@ class Database
             return $rq;
         }
         catch (PDOException $e) {
+
             $this->setLogMessage($e->getMessage());
+
+            if (in_array($e->getCode(), $this->pdo->getDuplicateKeyErrorCode())) {
+                return false;
+            }
+
             throw new RuntimeException('SQL error');
         }
     }
