@@ -46,6 +46,14 @@ class Database
     public $stopwatch = false;
 
     /**
+     * Flag to log generated SQL queries
+     *
+     * @access public
+     * @var boolean
+     */
+    public $log_queries = false;
+
+    /**
      * Constructor, iniatlize a PDO driver
      *
      * @access public
@@ -197,7 +205,9 @@ class Database
     {
         try {
 
-            $this->setLogMessage($sql);
+            if ($this->log_queries) {
+                $this->setLogMessage($sql);
+            }
 
             if ($this->stopwatch) {
                 $start = microtime(true);
