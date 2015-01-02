@@ -54,6 +54,14 @@ class Database
     public $log_queries = false;
 
     /**
+     * Number of SQL queries executed
+     *
+     * @access public
+     * @var integer
+     */
+    public $nb_queries = 0;
+
+    /**
      * Constructor, iniatlize a PDO driver
      *
      * @access public
@@ -219,6 +227,8 @@ class Database
             if ($this->stopwatch) {
                 $this->setLogMessage('DURATION='.(microtime(true) - $start));
             }
+
+            $this->nb_queries++;
 
             return $rq;
         }

@@ -20,11 +20,6 @@ Requirements
 - PDO
 - A database: Sqlite, Mysql or Postgresql
 
-Todo
-----
-
-- Add support for Distinct and group by
-
 Documentation
 -------------
 

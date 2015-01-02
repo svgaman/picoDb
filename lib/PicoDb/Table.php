@@ -2,6 +2,8 @@
 
 namespace PicoDb;
 
+use PDO;
+
 class Table
 {
     const SORT_ASC = 'ASC';
@@ -114,16 +116,16 @@ class Table
 
     public function listing($key, $value)
     {
-        $this->columns($key, $value);
-
         $listing = array();
-        $results = $this->findAll();
 
-        if ($results) {
+        $this->columns($key, $value);
+        $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
 
-            foreach ($results as $result) {
+        if ($rq !== false) {
+            $rows = $rq->fetchAll(PDO::FETCH_NUM);
 
-                $listing[$result[$key]] = $result[$value];
+            foreach ($rows as $row) {
+                $listing[$row[0]] = $row[1];
             }
         }
 
@@ -136,7 +138,7 @@ class Table
         $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
         if (false === $rq) return false;
 
-        return $rq->fetchAll(\PDO::FETCH_ASSOC);
+        return $rq->fetchAll(PDO::FETCH_ASSOC);
     }
 
 
@@ -146,7 +148,7 @@ class Table
         $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
         if (false === $rq) return false;
 
-        return $rq->fetchAll(\PDO::FETCH_COLUMN, 0);
+        return $rq->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 
 
