@@ -235,11 +235,13 @@ class Database
         }
         catch (PDOException $e) {
 
-            $this->setLogMessage($e->getMessage());
+            $this->cancelTransaction();
 
             if (in_array($e->getCode(), $this->pdo->getDuplicateKeyErrorCode())) {
                 return false;
             }
+
+            $this->setLogMessage($e->getMessage());
 
             throw new RuntimeException('SQL error');
         }
@@ -254,23 +256,9 @@ class Database
      */
     public function transaction(Closure $callback)
     {
-        try {
-
-            $this->pdo->beginTransaction();
-            $result = $callback($this);
-
-            if ($result === false) {
-                $this->pdo->rollback();
-            }
-            else {
-                $this->pdo->commit();
-            }
-        }
-        catch (PDOException $e) {
-            $this->pdo->rollback();
-            $this->setLogMessage($e->getMessage());
-            $result = false;
-        }
+        $this->pdo->beginTransaction();
+        $result = $callback($this); // Rollback is done in the execute() method
+        $this->closeTransaction();
 
         return $result === null ? true : $result;
     }
