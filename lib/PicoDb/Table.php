@@ -21,6 +21,7 @@ class Table
     private $values = array();
     private $distinct = false;
     private $group_by = array();
+    private $filter_callback = null;
     private $db;
 
     /**
@@ -154,6 +155,19 @@ class Table
     }
 
     /**
+     * Add callback to alter the resultset
+     *
+     * @access public
+     * @param  array|callable  $callback
+     * @return \PicoDb\Table
+     */
+    public function filter($callback)
+    {
+        $this->filter_callback = $callback;
+        return $this;
+    }
+
+    /**
      * Fetch all rows
      *
      * @access public
@@ -162,7 +176,13 @@ class Table
     public function findAll()
     {
         $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
-        return $rq->fetchAll(PDO::FETCH_ASSOC);
+        $results = $rq->fetchAll(PDO::FETCH_ASSOC);
+
+        if (is_callable($this->filter_callback)) {
+            return call_user_func($this->filter_callback, $results);
+        }
+
+        return $results;
     }
 
     /**
