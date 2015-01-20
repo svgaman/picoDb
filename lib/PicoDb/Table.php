@@ -138,7 +138,7 @@ class Table
      * @param  string    $value    Column 2
      * @return array
      */
-    public function listing($key, $value)
+    public function hashmap($key, $value)
     {
         $listing = array();
 
