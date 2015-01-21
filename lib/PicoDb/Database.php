@@ -312,6 +312,19 @@ class Database
     }
 
     /**
+     * Get a hashtable instance
+     *
+     * @access public
+     * @return Picodb\Hashtable
+     */
+    public function hashtable($table_name)
+    {
+        require_once __DIR__.'/Table.php';
+        require_once __DIR__.'/Hashtable.php';
+        return new Hashtable($this, $table_name);
+    }
+
+    /**
      * Get a schema instance
      *
      * @access public
