@@ -126,4 +126,19 @@ class Hashtable extends Table
 
         return $hashmap;
     }
+
+    /**
+     * Shortcut method to get a hashmap result
+     *
+     * @access public
+     * @param  string  $key    Key column
+     * @param  string  $value  Value column
+     * @return array
+     */
+    public function getAll($key, $value)
+    {
+        $this->column_key = $key;
+        $this->column_value = $value;
+        return $this->get();
+    }
 }

@@ -350,6 +350,12 @@ Array
 )
 ```
 
+or
+
+```php
+$result = $db->hashtable('toto')->getAll('column1', 'column2');
+```
+
 Get a specific value:
 
 ```php
