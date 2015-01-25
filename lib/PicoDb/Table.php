@@ -244,7 +244,7 @@ class Table
     public function count()
     {
         $sql = sprintf(
-            'SELECT COUNT(*) FROM %s'.$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
             $this->db->escapeIdentifier($this->table_name)
         );
 
