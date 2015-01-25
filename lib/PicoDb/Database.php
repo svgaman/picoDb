@@ -190,13 +190,18 @@ class Database
      *
      * @access public
      * @param  string    $value    Value
+     * @param  string    $table    Table name
      * @return string
      */
-    public function escapeIdentifier($value)
+    public function escapeIdentifier($value, $table = '')
     {
         // Do not escape custom query
         if (strpos($value, '.') !== false || strpos($value, ' ') !== false) {
             return $value;
+        }
+
+        if (! empty($table)) {
+            return $this->pdo->escapeIdentifier($table).'.'.$this->pdo->escapeIdentifier($value);
         }
 
         return $this->pdo->escapeIdentifier($value);

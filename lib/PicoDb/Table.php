@@ -218,7 +218,7 @@ class Table
     public function buildSelectQuery()
     {
         foreach ($this->columns as $key => $value) {
-            $this->columns[$key] = $this->db->escapeIdentifier($value);
+            $this->columns[$key] = $this->db->escapeIdentifier($value, $this->table_name);
         }
 
         return sprintf(
