@@ -13,16 +13,22 @@ class Table
     protected $table_name = '';
     protected $values = array();
 
+    private $columns = array();
+
     private $sql_limit = '';
     private $sql_offset = '';
     private $sql_order = '';
+
     private $joins = array();
+
+    private $condition = '';
     private $conditions = array();
     private $or_conditions = array();
     private $is_or_condition = false;
-    private $columns = array();
+
     private $distinct = false;
     private $group_by = array();
+
     private $filter_callback = null;
 
     /**
@@ -82,7 +88,7 @@ class Table
             'UPDATE %s SET %s %s',
             $this->db->escapeIdentifier($this->table_name),
             implode(', ', $columns),
-            $this->conditions()
+            $this->buildCondition()
         );
 
         return $this->db->execute($sql, $values) !== false;
@@ -124,7 +130,7 @@ class Table
         $sql = sprintf(
             'DELETE FROM %s %s',
             $this->db->escapeIdentifier($this->table_name),
-            $this->conditions()
+            $this->buildCondition()
         );
 
         $result = $this->db->execute($sql, $this->values);
@@ -227,7 +233,7 @@ class Table
             empty($this->columns) ? '*' : implode(', ', $this->columns),
             $this->db->escapeIdentifier($this->table_name),
             implode(' ', $this->joins),
-            $this->conditions(),
+            $this->buildCondition(),
             empty($this->group_by) ? '' : 'GROUP BY '.implode(', ', $this->group_by),
             $this->sql_order,
             $this->sql_limit,
@@ -244,7 +250,7 @@ class Table
     public function count()
     {
         $sql = sprintf(
-            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->conditions().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->buildCondition().$this->sql_order.$this->sql_limit.$this->sql_offset,
             $this->db->escapeIdentifier($this->table_name)
         );
 
@@ -277,13 +283,29 @@ class Table
     }
 
     /**
-     * Build conditions
+     * Add custom condition
      *
-     * @access public
+     * @access private
+     * @return Table
+     */
+    private function condition($condition)
+    {
+        $this->condition = $condition;
+        return $this;
+    }
+
+    /**
+     * Build condition
+     *
+     * @access private
      * @return string
      */
-    public function conditions()
+    private function buildCondition()
     {
+        if (! empty($this->condition)) {
+            return 'WHERE '.$this->condition;
+        }
+
         return empty($this->conditions) ? '' : ' WHERE '.implode(' AND ', $this->conditions);
     }
 
@@ -292,6 +314,7 @@ class Table
      *
      * @access public
      * @param  string   $sql
+     * @return Table
      */
     public function addCondition($sql)
     {
@@ -301,6 +324,8 @@ class Table
         else {
             $this->conditions[] = $sql;
         }
+
+        return $this;
     }
 
     /**
