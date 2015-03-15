@@ -161,7 +161,7 @@ class Table
         $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
         $results = $rq->fetchAll(PDO::FETCH_ASSOC);
 
-        if (is_callable($this->filter_callback)) {
+        if (is_callable($this->filter_callback) && ! empty($results)) {
             return call_user_func($this->filter_callback, $results);
         }
 
