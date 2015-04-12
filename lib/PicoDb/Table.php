@@ -255,9 +255,30 @@ class Table
         );
 
         $rq = $this->db->execute($sql, $this->values);
-
         $result = $rq->fetchColumn();
+
         return $result ? (int) $result : 0;
+    }
+
+    /**
+     * Sum
+     *
+     * @access public
+     * @param  string   $column
+     * @return float
+     */
+    public function sum($column)
+    {
+        $sql = sprintf(
+            'SELECT SUM(%s) FROM %s '.implode(' ', $this->joins).$this->buildCondition().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            $this->db->escapeIdentifier($column),
+            $this->db->escapeIdentifier($this->table_name)
+        );
+
+        $rq = $this->db->execute($sql, $this->values);
+        $result = $rq->fetchColumn();
+
+        return $result ? (float) $result : 0;
     }
 
     /**
