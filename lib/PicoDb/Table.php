@@ -305,6 +305,30 @@ class Table
     }
 
     /**
+     * Left join
+     *
+     * @access public
+     * @param  string   $table1
+     * @param  string   $alias1
+     * @param  string   $column1
+     * @param  string   $table2
+     * @param  string   $column2
+     * @return \PicoDb\Table
+     */
+    public function left($table1, $alias1, $column1, $table2, $column2)
+    {
+        $this->joins[] = sprintf(
+            'LEFT JOIN %s AS %s ON %s=%s',
+            $this->db->escapeIdentifier($table1),
+            $this->db->escapeIdentifier($alias1),
+            $this->db->escapeIdentifier($alias1).'.'.$this->db->escapeIdentifier($column1),
+            $this->db->escapeIdentifier($table2).'.'.$this->db->escapeIdentifier($column2)
+        );
+
+        return $this;
+    }
+
+    /**
      * Add custom condition
      *
      * @access private
