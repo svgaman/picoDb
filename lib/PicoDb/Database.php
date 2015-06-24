@@ -11,6 +11,11 @@ use Picodb\Driver\Sqlite;
 use Picodb\Driver\Mysql;
 use Picodb\Driver\Postgres;
 
+/**
+ * Database
+ *
+ * @author   Frederic Guillot
+ */
 class Database
 {
     /**
@@ -75,22 +80,18 @@ class Database
         }
 
         switch ($settings['driver']) {
-
             case 'sqlite':
                 require_once __DIR__.'/Driver/Sqlite.php';
                 $this->pdo = new Sqlite($settings);
                 break;
-
             case 'mysql':
                 require_once __DIR__.'/Driver/Mysql.php';
                 $this->pdo = new Mysql($settings);
                 break;
-
             case 'postgres':
                 require_once __DIR__.'/Driver/Postgres.php';
                 $this->pdo = new Postgres($settings);
                 break;
-
             default:
                 throw new LogicException('This database driver is not supported.');
         }
@@ -329,7 +330,6 @@ class Database
      */
     public function table($table_name)
     {
-        require_once __DIR__.'/Table.php';
         return new Table($this, $table_name);
     }
 
@@ -341,8 +341,6 @@ class Database
      */
     public function hashtable($table_name)
     {
-        require_once __DIR__.'/Table.php';
-        require_once __DIR__.'/Hashtable.php';
         return new Hashtable($this, $table_name);
     }
 
@@ -354,7 +352,6 @@ class Database
      */
     public function schema()
     {
-        require_once __DIR__.'/Schema.php';
         return new Schema($this);
     }
 }

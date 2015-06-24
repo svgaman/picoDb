@@ -4,45 +4,141 @@ namespace PicoDb;
 
 use PDO;
 
+/**
+ * Table
+ *
+ * @author   Frederic Guillot
+ */
 class Table
 {
+    /**
+     * Sorting direction
+     *
+     * @access public
+     * @var string
+     */
     const SORT_ASC = 'ASC';
     const SORT_DESC = 'DESC';
 
-    protected $db;
-    protected $table_name = '';
-    protected $values = array();
+    /**
+     * Condition instance
+     *
+     * @access public
+     * @var    Condition
+     */
+    public $condition;
 
+    /**
+     * Database instance
+     *
+     * @access protected
+     * @var    Database
+     */
+    protected $db;
+
+    /**
+     * Table name
+     *
+     * @access protected
+     * @var    string
+     */
+    protected $name = '';
+
+    /**
+     * Columns list for SELECT query
+     *
+     * @access private
+     * @var    array
+     */
     private $columns = array();
 
+    /**
+     * SQL limit
+     *
+     * @access private
+     * @var    string
+     */
     private $sql_limit = '';
+
+    /**
+     * SQL offset
+     *
+     * @access private
+     * @var    string
+     */
     private $sql_offset = '';
+
+    /**
+     * SQL order
+     *
+     * @access private
+     * @var    string
+     */
     private $sql_order = '';
+
+    /**
+     * SQL custom SELECT value
+     *
+     * @access private
+     * @var    string
+     */
     private $sql_select = '';
 
+    /**
+     * SQL joins
+     *
+     * @access private
+     * @var    array
+     */
     private $joins = array();
 
-    private $condition = '';
-    private $conditions = array();
-    private $or_conditions = array();
-    private $is_or_condition = false;
-
+    /**
+     * Use DISTINCT or not?
+     *
+     * @access private
+     * @var    boolean
+     */
     private $distinct = false;
+
+    /**
+     * Group by those columns
+     *
+     * @access private
+     * @var    array
+     */
     private $group_by = array();
 
-    private $filter_callback = null;
+    /**
+     * Callback for result filtering
+     *
+     * @access private
+     * @var    \Closure
+     */
+    private $callback = null;
 
     /**
      * Constructor
      *
      * @access public
-     * @param  \PicoDb\Database   $db
-     * @param  string             $table_name
+     * @param  Database   $db
+     * @param  string     $name
      */
-    public function __construct(Database $db, $table_name)
+    public function __construct(Database $db, $name)
     {
         $this->db = $db;
-        $this->table_name = $table_name;
+        $this->name = $name;
+        $this->condition = new Condition($db);
+    }
+
+    /**
+     * Return the table name
+     *
+     * @access public
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -54,12 +150,7 @@ class Table
      */
     public function save(array $data)
     {
-        if (! empty($this->conditions)) {
-            return $this->update($data);
-        }
-        else {
-            return $this->insert($data);
-        }
+        return $this->condition->hasCondition() ? $this->update($data) : $this->insert($data);
     }
 
     /**
@@ -76,20 +167,23 @@ class Table
         $columns = array();
         $values = array();
 
+        // Split columns and values
         foreach ($data as $column => $value) {
             $columns[] = $this->db->escapeIdentifier($column).'=?';
             $values[] = $value;
         }
 
-        foreach ($this->values as $value) {
+        // Append condition values
+        foreach ($this->condition->getValues() as $value) {
             $values[] = $value;
         }
 
+        // Build SQL query
         $sql = sprintf(
             'UPDATE %s SET %s %s',
-            $this->db->escapeIdentifier($this->table_name),
+            $this->db->escapeIdentifier($this->name),
             implode(', ', $columns),
-            $this->buildCondition()
+            $this->condition->build()
         );
 
         return $this->db->execute($sql, $values) !== false;
@@ -112,7 +206,7 @@ class Table
 
         $sql = sprintf(
             'INSERT INTO %s (%s) VALUES (%s)',
-            $this->db->escapeIdentifier($this->table_name),
+            $this->db->escapeIdentifier($this->name),
             implode(', ', $columns),
             implode(', ', array_fill(0, count($data), '?'))
         );
@@ -130,25 +224,12 @@ class Table
     {
         $sql = sprintf(
             'DELETE FROM %s %s',
-            $this->db->escapeIdentifier($this->table_name),
-            $this->buildCondition()
+            $this->db->escapeIdentifier($this->name),
+            $this->condition->build()
         );
 
-        $result = $this->db->execute($sql, $this->values);
+        $result = $this->db->execute($sql, $this->condition->getValues());
         return $result->rowCount() > 0;
-    }
-
-    /**
-     * Add callback to alter the resultset
-     *
-     * @access public
-     * @param  array|callable  $callback
-     * @return Table
-     */
-    public function filter($callback)
-    {
-        $this->filter_callback = $callback;
-        return $this;
     }
 
     /**
@@ -159,11 +240,11 @@ class Table
      */
     public function findAll()
     {
-        $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
+        $rq = $this->db->execute($this->buildSelectQuery(), $this->condition->getValues());
         $results = $rq->fetchAll(PDO::FETCH_ASSOC);
 
-        if (is_callable($this->filter_callback) && ! empty($results)) {
-            return call_user_func($this->filter_callback, $results);
+        if (is_callable($this->callback) && ! empty($results)) {
+            return call_user_func($this->callback, $results);
         }
 
         return $results;
@@ -174,12 +255,12 @@ class Table
      *
      * @access public
      * @param  string    $column
-     * @return boolean
+     * @return mixed
      */
     public function findAllByColumn($column)
     {
         $this->columns = array($column);
-        $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
+        $rq = $this->db->execute($this->buildSelectQuery(), $this->condition->getValues());
 
         return $rq->fetchAll(PDO::FETCH_COLUMN, 0);
     }
@@ -189,7 +270,7 @@ class Table
      *
      * @access public
      * @param  array    $data
-     * @return boolean
+     * @return array|null
      */
     public function findOne()
     {
@@ -211,43 +292,15 @@ class Table
         $this->limit(1);
         $this->columns = array($column);
 
-        $rq = $this->db->execute($this->buildSelectQuery(), $this->values);
-
-        return $rq->fetchColumn();
+        return $this->db->execute($this->buildSelectQuery(), $this->condition->getValues())->fetchColumn();
     }
 
     /**
-     * Build a select query
+     * Build a subquery with an alias
      *
      * @access public
-     * @return string
-     */
-    public function buildSelectQuery()
-    {
-        if (empty($this->sql_select)) {
-            $this->columns = $this->db->escapeIdentifierList($this->columns, $this->table_name);
-            $this->sql_select = ($this->distinct ? 'DISTINCT ' : '').(empty($this->columns) ? '*' : implode(', ', $this->columns));
-        }
-
-        $this->group_by = $this->db->escapeIdentifierList($this->group_by, $this->table_name);
-
-        return trim(sprintf(
-            'SELECT %s FROM %s %s %s %s %s %s %s',
-            $this->sql_select,
-            $this->db->escapeIdentifier($this->table_name),
-            implode(' ', $this->joins),
-            $this->buildCondition(),
-            empty($this->group_by) ? '' : 'GROUP BY '.implode(', ', $this->group_by),
-            $this->sql_order,
-            $this->sql_limit,
-            $this->sql_offset
-        ));
-    }
-
-    /**
-     * Build a subquery
-     *
-     * @access public
+     * @param  string  $sql
+     * @param  string  $alias
      * @return Table
      */
     public function subquery($sql, $alias)
@@ -265,11 +318,11 @@ class Table
     public function count()
     {
         $sql = sprintf(
-            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->buildCondition().$this->sql_order.$this->sql_limit.$this->sql_offset,
-            $this->db->escapeIdentifier($this->table_name)
+            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->condition->build().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            $this->db->escapeIdentifier($this->name)
         );
 
-        $rq = $this->db->execute($sql, $this->values);
+        $rq = $this->db->execute($sql, $this->condition->getValues());
         $result = $rq->fetchColumn();
 
         return $result ? (int) $result : 0;
@@ -285,38 +338,15 @@ class Table
     public function sum($column)
     {
         $sql = sprintf(
-            'SELECT SUM(%s) FROM %s '.implode(' ', $this->joins).$this->buildCondition().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            'SELECT SUM(%s) FROM %s '.implode(' ', $this->joins).$this->condition->build().$this->sql_order.$this->sql_limit.$this->sql_offset,
             $this->db->escapeIdentifier($column),
-            $this->db->escapeIdentifier($this->table_name)
+            $this->db->escapeIdentifier($this->name)
         );
 
-        $rq = $this->db->execute($sql, $this->values);
+        $rq = $this->db->execute($sql, $this->condition->getValues());
         $result = $rq->fetchColumn();
 
         return $result ? (float) $result : 0;
-    }
-
-    /**
-     * Left join
-     *
-     * @access public
-     * @param  string   $table              Join table
-     * @param  string   $foreign_column     Foreign key on the join table
-     * @param  string   $local_column       Local column
-     * @param  string   $local_table        Local table
-     * @param  string   $alias              Join table alias
-     * @return Table
-     */
-    public function join($table, $foreign_column, $local_column, $local_table = '', $alias = '')
-    {
-        $this->joins[] = sprintf(
-            'LEFT JOIN %s ON %s=%s',
-            $this->db->escapeIdentifier($table),
-            $this->db->escapeIdentifier($alias ?: $table).'.'.$this->db->escapeIdentifier($foreign_column),
-            $this->db->escapeIdentifier($local_table ?: $this->table_name).'.'.$this->db->escapeIdentifier($local_column)
-        );
-
-        return $this;
     }
 
     /**
@@ -344,82 +374,6 @@ class Table
     }
 
     /**
-     * Add custom condition
-     *
-     * @access private
-     * @return Table
-     */
-    private function condition($condition)
-    {
-        $this->condition = $condition;
-        return $this;
-    }
-
-    /**
-     * Build condition
-     *
-     * @access private
-     * @return string
-     */
-    private function buildCondition()
-    {
-        if (! empty($this->condition)) {
-            return 'WHERE '.$this->condition;
-        }
-
-        return empty($this->conditions) ? '' : ' WHERE '.implode(' AND ', $this->conditions);
-    }
-
-    /**
-     * Add new condition
-     *
-     * @access public
-     * @param  string   $sql
-     * @return Table
-     */
-    public function addCondition($sql)
-    {
-        if ($this->is_or_condition) {
-            $this->or_conditions[] = $sql;
-        }
-        else {
-            $this->conditions[] = $sql;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Start OR condition
-     *
-     * @access public
-     * @return Table
-     */
-    public function beginOr()
-    {
-        $this->is_or_condition = true;
-        $this->or_conditions = array();
-        return $this;
-    }
-
-    /**
-     * Close OR condition
-     *
-     * @access public
-     * @return Table
-     */
-    public function closeOr()
-    {
-        $this->is_or_condition = false;
-
-        if (! empty($this->or_conditions)) {
-            $this->conditions[] = '('.implode(' OR ', $this->or_conditions).')';
-        }
-
-        return $this;
-    }
-
-    /**
      * Order by
      *
      * @access public
@@ -433,10 +387,10 @@ class Table
         $order = $order === self::SORT_ASC || $order === self::SORT_DESC ? $order : self::SORT_ASC;
 
         if ($this->sql_order === '') {
-            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column, $this->table_name).' '.$order;
+            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column, $this->name).' '.$order;
         }
         else {
-            $this->sql_order .= ', '.$this->db->escapeIdentifier($column, $this->table_name).' '.$order;
+            $this->sql_order .= ', '.$this->db->escapeIdentifier($column, $this->name).' '.$order;
         }
 
         return $this;
@@ -550,6 +504,47 @@ class Table
     }
 
     /**
+     * Add callback to alter the resultset
+     *
+     * @access public
+     * @param  array|callable  $callback
+     * @return Table
+     */
+    public function callback($callback)
+    {
+        $this->callback = $callback;
+        return $this;
+    }
+
+    /**
+     * Build a select query
+     *
+     * @access public
+     * @return string
+     */
+    public function buildSelectQuery()
+    {
+        if (empty($this->sql_select)) {
+            $this->columns = $this->db->escapeIdentifierList($this->columns);
+            $this->sql_select = ($this->distinct ? 'DISTINCT ' : '').(empty($this->columns) ? '*' : implode(', ', $this->columns));
+        }
+
+        $this->group_by = $this->db->escapeIdentifierList($this->group_by);
+
+        return trim(sprintf(
+            'SELECT %s FROM %s %s %s %s %s %s %s',
+            $this->sql_select,
+            $this->db->escapeIdentifier($this->name),
+            implode(' ', $this->joins),
+            $this->condition->build(),
+            empty($this->group_by) ? '' : 'GROUP BY '.implode(', ', $this->group_by),
+            $this->sql_order,
+            $this->sql_limit,
+            $this->sql_offset
+        ));
+    }
+
+    /**
      * Magic method for sql conditions
      *
      * @access public
@@ -559,109 +554,7 @@ class Table
      */
     public function __call($name, array $arguments)
     {
-        $column = $arguments[0];
-        $sql = '';
-
-        switch (strtolower($name)) {
-
-            case 'in':
-                if (isset($arguments[1]) && is_array($arguments[1]) && ! empty($arguments[1])) {
-
-                    $sql = sprintf(
-                        '%s IN (%s)',
-                        $this->db->escapeIdentifier($column),
-                        implode(', ', array_fill(0, count($arguments[1]), '?'))
-                    );
-                }
-                break;
-
-            case 'notin':
-                if (isset($arguments[1]) && is_array($arguments[1]) && ! empty($arguments[1])) {
-
-                    $sql = sprintf(
-                        '%s NOT IN (%s)',
-                        $this->db->escapeIdentifier($column),
-                        implode(', ', array_fill(0, count($arguments[1]), '?'))
-                    );
-                }
-                break;
-
-            case 'like':
-                $sql = sprintf(
-                    '%s %s ?',
-                    $this->db->escapeIdentifier($column),
-                    $this->db->getConnection()->operatorLikeCaseSensitive()
-                );
-                break;
-
-            case 'ilike':
-                $sql = sprintf(
-                    '%s %s ?',
-                    $this->db->escapeIdentifier($column),
-                    $this->db->getConnection()->operatorLikeNotCaseSensitive()
-                );
-                break;
-
-            case 'eq':
-            case 'equal':
-            case 'equals':
-                $sql = sprintf('%s = ?', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'neq':
-            case 'notequal':
-            case 'notequals':
-                $sql = sprintf('%s != ?', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'gt':
-            case 'greaterthan':
-                $sql = sprintf('%s > ?', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'lt':
-            case 'lowerthan':
-                $sql = sprintf('%s < ?', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'gte':
-            case 'greaterthanorequals':
-                $sql = sprintf('%s >= ?', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'lte':
-            case 'lowerthanorequals':
-                $sql = sprintf('%s <= ?', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'isnull':
-                $sql = sprintf('%s IS NULL', $this->db->escapeIdentifier($column));
-                break;
-
-            case 'notnull':
-                $sql = sprintf('%s IS NOT NULL', $this->db->escapeIdentifier($column));
-                break;
-        }
-
-        if ($sql !== '') {
-
-            $this->addCondition($sql);
-
-            if (isset($arguments[1])) {
-
-                if (is_array($arguments[1])) {
-
-                    foreach ($arguments[1] as $value) {
-                        $this->values[] = $value;
-                    }
-                }
-                else {
-
-                    $this->values[] = $arguments[1];
-                }
-            }
-        }
-
+        call_user_func_array(array($this->condition, $name), $arguments);
         return $this;
     }
 }

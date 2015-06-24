@@ -7,92 +7,304 @@ use PicoDb\Table;
 
 class SqliteTest extends PHPUnit_Framework_TestCase
 {
+    private $db;
+
+    public function setUp()
+    {
+        $this->db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
+        $this->log_queries = true;
+    }
+
     public function testEscapeIdentifer()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('"a"', $db->escapeIdentifier('a'));
-        $this->assertEquals('a.b', $db->escapeIdentifier('a.b'));
-        $this->assertEquals('"c"."a"', $db->escapeIdentifier('a', 'c'));
-        $this->assertEquals('a.b', $db->escapeIdentifier('a.b', 'c'));
-        $this->assertEquals('SELECT COUNT(*) FROM test', $db->escapeIdentifier('SELECT COUNT(*) FROM test'));
-        $this->assertEquals('SELECT COUNT(*) FROM test', $db->escapeIdentifier('SELECT COUNT(*) FROM test', 'b'));
+        $this->assertEquals('"a"', $this->db->escapeIdentifier('a'));
+        $this->assertEquals('a.b', $this->db->escapeIdentifier('a.b'));
+        $this->assertEquals('"c"."a"', $this->db->escapeIdentifier('a', 'c'));
+        $this->assertEquals('a.b', $this->db->escapeIdentifier('a.b', 'c'));
+        $this->assertEquals('SELECT COUNT(*) FROM test', $this->db->escapeIdentifier('SELECT COUNT(*) FROM test'));
+        $this->assertEquals('SELECT COUNT(*) FROM test', $this->db->escapeIdentifier('SELECT COUNT(*) FROM test', 'b'));
     }
 
     public function testEscapeIdentiferList()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals(array('"c"."a"', '"c"."b"'), $db->escapeIdentifierList(array('a', 'b'), 'c'));
-        $this->assertEquals(array('"a"', 'd.b'), $db->escapeIdentifierList(array('a', 'd.b')));
+        $this->assertEquals(array('"c"."a"', '"c"."b"'), $this->db->escapeIdentifierList(array('a', 'b'), 'c'));
+        $this->assertEquals(array('"a"', 'd.b'), $this->db->escapeIdentifierList(array('a', 'd.b')));
     }
 
     public function testSelect()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT 1 FROM "test"', $db->table('test')->select(1)->buildSelectQuery());
+        $this->assertEquals('SELECT 1 FROM "test"', $this->db->table('test')->select(1)->buildSelectQuery());
     }
 
     public function testColumns()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT "test"."a", "test"."b" FROM "test"', $db->table('test')->columns('a', 'b')->buildSelectQuery());
+        $this->assertEquals('SELECT "a", "b" FROM "test"', $this->db->table('test')->columns('a', 'b')->buildSelectQuery());
     }
 
     public function testDistinct()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT DISTINCT "test"."a", "test"."b" FROM "test"', $db->table('test')->distinct('a', 'b')->buildSelectQuery());
+        $this->assertEquals('SELECT DISTINCT "a", "b" FROM "test"', $this->db->table('test')->distinct('a', 'b')->buildSelectQuery());
     }
 
     public function testGroupBy()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT * FROM "test"   GROUP BY "test"."a"', $db->table('test')->groupBy('a')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"   GROUP BY "a"', $this->db->table('test')->groupBy('a')->buildSelectQuery());
     }
 
     public function testOrderBy()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC', $this->db->table('test')->asc('a')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC', $this->db->table('test')->orderBy('a', Table::SORT_ASC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC', $db->table('test')->asc('a')->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC', $db->table('test')->orderBy('a', Table::SORT_ASC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC', $this->db->table('test')->desc('a', Table::SORT_DESC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC', $db->table('test')->desc('a', Table::SORT_DESC)->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC', $db->table('test')->orderBy('a', Table::SORT_DESC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC, "test"."b" ASC', $this->db->table('test')->asc('a')->asc('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" DESC', $this->db->table('test')->desc('a')->desc('b')->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC, "test"."b" ASC', $db->table('test')->asc('a')->asc('b')->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" DESC', $db->table('test')->desc('a')->desc('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC, "test"."b" ASC', $this->db->table('test')->orderBy('a')->orderBy('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->orderBy('b', Table::SORT_DESC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC, "test"."b" ASC', $db->table('test')->orderBy('a')->orderBy('b')->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" DESC', $db->table('test')->orderBy('a', Table::SORT_DESC)->orderBy('b', Table::SORT_DESC)->buildSelectQuery());
-
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" ASC', $db->table('test')->desc('a')->asc('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" ASC', $this->db->table('test')->desc('a')->asc('b')->buildSelectQuery());
     }
 
     public function testLimit()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT * FROM "test"      LIMIT 10', $db->table('test')->limit(10)->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"', $db->table('test')->limit(null)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"      LIMIT 10', $this->db->table('test')->limit(10)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"', $this->db->table('test')->limit(null)->buildSelectQuery());
     }
 
     public function testOffset()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT * FROM "test"       OFFSET 0', $db->table('test')->offset(0)->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"       OFFSET 10', $db->table('test')->offset(10)->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"', $db->table('test')->limit(null)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"       OFFSET 0', $this->db->table('test')->offset(0)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"       OFFSET 10', $this->db->table('test')->offset(10)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"', $this->db->table('test')->limit(null)->buildSelectQuery());
     }
 
     public function testLimitOffset()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT * FROM "test"      LIMIT 2  OFFSET 0', $db->table('test')->offset(0)->limit(2)->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"      LIMIT 5  OFFSET 10', $db->table('test')->offset(10)->limit(5)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"      LIMIT 2  OFFSET 0', $this->db->table('test')->offset(0)->limit(2)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"      LIMIT 5  OFFSET 10', $this->db->table('test')->offset(10)->limit(5)->buildSelectQuery());
     }
 
     public function testSubquery()
     {
-        $db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->assertEquals('SELECT (SELECT 1 FROM "foobar" WHERE 1=1) AS "b" FROM "test"', $db->table('test')->subquery('SELECT 1 FROM "foobar" WHERE 1=1', 'b')->buildSelectQuery());
+        $this->assertEquals('SELECT (SELECT 1 FROM "foobar" WHERE 1=1) AS "b" FROM "test"', $this->db->table('test')->subquery('SELECT 1 FROM "foobar" WHERE 1=1', 'b')->buildSelectQuery());
+    }
+
+    public function testConditionEqual()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" = ? AND "b" = ?', $table->eq('a', 2)->eq('b', 'foobar')->buildSelectQuery());
+        $this->assertEquals(array(2, 'foobar'), $table->condition->getValues());
+    }
+
+    public function testConditionNotEqual()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" != ?', $table->neq('a', 2)->buildSelectQuery());
+        $this->assertEquals(array(2), $table->condition->getValues());
+    }
+
+    public function testConditionIn()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" IN (?, ?)', $table->in('a', array('b', 'c'))->buildSelectQuery());
+        $this->assertEquals(array('b', 'c'), $table->condition->getValues());
+
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"', $table->in('a', array())->buildSelectQuery());
+        $this->assertEquals(array(), $table->condition->getValues());
+    }
+
+    public function testConditionNotIn()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" NOT IN (?, ?)', $table->notin('a', array('b', 'c'))->buildSelectQuery());
+        $this->assertEquals(array('b', 'c'), $table->condition->getValues());
+
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"', $table->notin('a', array())->buildSelectQuery());
+        $this->assertEquals(array(), $table->condition->getValues());
+    }
+
+    public function testConditionLike()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" LIKE ?', $table->like('a', '%foobar%')->buildSelectQuery());
+        $this->assertEquals(array('%foobar%'), $table->condition->getValues());
+    }
+
+    public function testConditionILike()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" LIKE ?', $table->ilike('a', '%foobar%')->buildSelectQuery());
+        $this->assertEquals(array('%foobar%'), $table->condition->getValues());
+    }
+
+    public function testConditionGreaterThan()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" > ?', $table->gt('a', 5)->buildSelectQuery());
+        $this->assertEquals(array(5), $table->condition->getValues());
+    }
+
+    public function testConditionGreaterThanOrEqual()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" >= ?', $table->gte('a', 5)->buildSelectQuery());
+        $this->assertEquals(array(5), $table->condition->getValues());
+    }
+
+    public function testConditionLowerThan()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" < ?', $table->lt('a', 5)->buildSelectQuery());
+        $this->assertEquals(array(5), $table->condition->getValues());
+    }
+
+    public function testConditionLowerThanOrEqual()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" <= ?', $table->lte('a', 5)->buildSelectQuery());
+        $this->assertEquals(array(5), $table->condition->getValues());
+    }
+
+    public function testConditionIsNull()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" IS NOT NULL', $table->notNull('a')->buildSelectQuery());
+        $this->assertEquals(array(), $table->condition->getValues());
+    }
+
+    public function testCustomCondition()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE a=c AND "b" = ?', $table->addCondition('a=c')->eq('b', 4)->buildSelectQuery());
+        $this->assertEquals(array(4), $table->condition->getValues());
+    }
+
+    public function testOrConditions()
+    {
+        $table = $this->db->table('test');
+
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" IS NOT NULL AND ("b" = ? OR "c" >= ?)', $table->notNull('a')->beginOr()->eq('b', 2)->gte('c', 5)->closeOr()->buildSelectQuery());
+        $this->assertEquals(array(2, 5), $table->condition->getValues());
+    }
+
+    public function testExecute()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a TEXT)'));
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testExecuteWithSQLError()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE T'));
+    }
+
+    public function testInsertUpdate()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a TEXT)'));
+        $this->assertTrue($this->db->table('foobar')->insert(array('a' => 'b')));
+        $this->assertTrue($this->db->table('foobar')->insert(array('a' => 'c')));
+
+        $this->assertEquals(array(array('a' => 'b'), array('a' => 'c')), $this->db->table('foobar')->findAll());
+
+        $this->assertEquals(array('b', 'c'), $this->db->table('foobar')->findAllByColumn('a'));
+
+        $this->assertEquals(array('a' => 'b'), $this->db->table('foobar')->findOne());
+
+        $this->assertEquals('b', $this->db->table('foobar')->findOneColumn('a'));
+
+        $this->assertEquals(2, $this->db->table('foobar')->count());
+        $this->assertEquals(1, $this->db->table('foobar')->eq('a', 'c')->count());
+        $this->assertEquals(0, $this->db->table('foobar')->eq('a', 'e')->count());
+
+        $this->assertTrue($this->db->table('foobar')->eq('a', 'c')->remove());
+        $this->assertFalse($this->db->table('foobar')->eq('a', 'e')->remove());
+
+        $this->assertTrue($this->db->table('foobar')->eq('a', 'b')->update(array('a' => 'test')));
+        $this->assertTrue($this->db->table('foobar')->eq('a', 'lol')->update(array('a' => 'test')));
+
+        $this->assertNotEmpty($this->db->table('foobar')->eq('a', 'test')->findOne());
+        $this->assertNull($this->db->table('foobar')->eq('a', 'lol')->findOne());
+
+        $this->assertTrue($this->db->table('foobar')->eq('a', 'test')->save(array('a' => 'plop')));
+        $this->assertEquals(1, $this->db->table('foobar')->count());
+    }
+
+    public function testSum()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a INTEGER)'));
+        $this->assertTrue($this->db->table('foobar')->insert(array('a' => 2)));
+        $this->assertTrue($this->db->table('foobar')->insert(array('a' => 5)));
+        $this->assertEquals(7, $this->db->table('foobar')->sum('a'));
+    }
+
+    public function testLeftJoin()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE test1 (a INTEGER NOT NULL, foreign_key INTEGER NOT NULL)'));
+        $this->assertNotFalse($this->db->execute('CREATE TABLE test2 (id INTEGERNOT NULL, b INTEGER NOT NULL)'));
+
+        $this->assertTrue($this->db->table('test2')->insert(array('id' => 42, 'b' => 2)));
+        $this->assertTrue($this->db->table('test1')->insert(array('a' => 18, 'foreign_key' => 42)));
+
+        $this->assertEquals(
+            array('a' => 18, 'b' => 2),
+            $this->db->table('test2')->columns('a', 'b')->eq('a', 18)->left('test1', 't1', 'foreign_key', 'test2', 'id')->findOne()
+        );
+    }
+
+    public function testHashTable()
+    {
+        $this->assertNotFalse($this->db->execute(
+            'CREATE TABLE toto (
+                column1 TEXT NOT NULL UNIQUE,
+                column2 TEXT default NULL
+            )'
+        ));
+
+        $this->assertTrue($this->db->table('toto')->insert(array('column1' => 'option1', 'column2' => 'value1')));
+        $this->assertTrue($this->db->table('toto')->insert(array('column1' => 'option2', 'column2' => 'value2')));
+        $this->assertTrue($this->db->table('toto')->insert(array('column1' => 'option3', 'column2' => 'value3')));
+
+        $values = array(
+            'option1' => 'hey',
+            'option4' => 'ho',
+        );
+
+        $this->assertTrue($this->db->hashtable('toto')->columnKey('column1')->columnValue('column2')->put($values));
+
+        $this->assertEquals(
+            array('option2' => 'value2', 'option4' => 'ho'),
+            $this->db->hashtable('toto')->columnKey('column1')->columnValue('column2')->get('option2', 'option4')
+        );
+
+        $this->assertEquals(
+            array('option2' => 'value2', 'option3' => 'value3', 'option1' => 'hey', 'option4' => 'ho'),
+            $this->db->hashtable('toto')->columnKey('column1')->columnValue('column2')->get()
+        );
+
+        $this->assertEquals(
+            array('option2' => 'value2', 'option3' => 'value3', 'option1' => 'hey', 'option4' => 'ho'),
+            $this->db->hashtable('toto')->getAll('column1', 'column2')
+        );
     }
 }
