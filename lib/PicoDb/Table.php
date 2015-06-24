@@ -18,6 +18,7 @@ class Table
     private $sql_limit = '';
     private $sql_offset = '';
     private $sql_order = '';
+    private $sql_select = '';
 
     private $joins = array();
 
@@ -142,7 +143,7 @@ class Table
      *
      * @access public
      * @param  array|callable  $callback
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function filter($callback)
     {
@@ -223,14 +224,16 @@ class Table
      */
     public function buildSelectQuery()
     {
-        foreach ($this->columns as $key => $value) {
-            $this->columns[$key] = $this->db->escapeIdentifier($value, $this->table_name);
+        if (empty($this->sql_select)) {
+            $this->columns = $this->db->escapeIdentifierList($this->columns, $this->table_name);
+            $this->sql_select = ($this->distinct ? 'DISTINCT ' : '').(empty($this->columns) ? '*' : implode(', ', $this->columns));
         }
 
-        return sprintf(
-            'SELECT %s %s FROM %s %s %s %s %s %s %s',
-            $this->distinct ? 'DISTINCT' : '',
-            empty($this->columns) ? '*' : implode(', ', $this->columns),
+        $this->group_by = $this->db->escapeIdentifierList($this->group_by, $this->table_name);
+
+        return trim(sprintf(
+            'SELECT %s FROM %s %s %s %s %s %s %s',
+            $this->sql_select,
             $this->db->escapeIdentifier($this->table_name),
             implode(' ', $this->joins),
             $this->buildCondition(),
@@ -238,7 +241,19 @@ class Table
             $this->sql_order,
             $this->sql_limit,
             $this->sql_offset
-        );
+        ));
+    }
+
+    /**
+     * Build a subquery
+     *
+     * @access public
+     * @return Table
+     */
+    public function subquery($sql, $alias)
+    {
+        $this->columns[] = '('.$sql.') AS '.$this->db->escapeIdentifier($alias);
+        return $this;
     }
 
     /**
@@ -290,7 +305,7 @@ class Table
      * @param  string   $local_column       Local column
      * @param  string   $local_table        Local table
      * @param  string   $alias              Join table alias
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function join($table, $foreign_column, $local_column, $local_table = '', $alias = '')
     {
@@ -313,7 +328,7 @@ class Table
      * @param  string   $column1
      * @param  string   $table2
      * @param  string   $column2
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function left($table1, $alias1, $column1, $table2, $column2)
     {
@@ -378,7 +393,7 @@ class Table
      * Start OR condition
      *
      * @access public
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function beginOr()
     {
@@ -391,7 +406,7 @@ class Table
      * Close OR condition
      *
      * @access public
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function closeOr()
     {
@@ -410,7 +425,7 @@ class Table
      * @access public
      * @param  string   $column    Column name
      * @param  string   $order     Direction ASC or DESC
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function orderBy($column, $order = self::SORT_ASC)
     {
@@ -418,10 +433,10 @@ class Table
         $order = $order === self::SORT_ASC || $order === self::SORT_DESC ? $order : self::SORT_ASC;
 
         if ($this->sql_order === '') {
-            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.$order;
+            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column, $this->table_name).' '.$order;
         }
         else {
-            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' '.$order;
+            $this->sql_order .= ', '.$this->db->escapeIdentifier($column, $this->table_name).' '.$order;
         }
 
         return $this;
@@ -432,17 +447,11 @@ class Table
      *
      * @access public
      * @param  string   $column
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function asc($column)
     {
-        if ($this->sql_order === '') {
-            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.self::SORT_ASC;
-        }
-        else {
-            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' '.self::SORT_ASC;
-        }
-
+        $this->orderBy($column, self::SORT_ASC);
         return $this;
     }
 
@@ -451,17 +460,11 @@ class Table
      *
      * @access public
      * @param  string   $column
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function desc($column)
     {
-        if ($this->sql_order === '') {
-            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.self::SORT_DESC;
-        }
-        else {
-            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' '.self::SORT_DESC;
-        }
-
+        $this->orderBy($column, self::SORT_DESC);
         return $this;
     }
 
@@ -470,7 +473,7 @@ class Table
      *
      * @access public
      * @param  integer   $value
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function limit($value)
     {
@@ -486,7 +489,7 @@ class Table
      *
      * @access public
      * @param  integer   $value
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function offset($value)
     {
@@ -501,7 +504,7 @@ class Table
      * Group by
      *
      * @access public
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function groupBy()
     {
@@ -510,10 +513,22 @@ class Table
     }
 
     /**
+     * Custom select
+     *
+     * @access public
+     * @return Table
+     */
+    public function select($select)
+    {
+        $this->sql_select = $select;
+        return $this;
+    }
+
+    /**
      * Define the columns for the select
      *
      * @access public
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function columns()
     {
@@ -525,7 +540,7 @@ class Table
      * Distinct
      *
      * @access public
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function distinct()
     {
@@ -540,7 +555,7 @@ class Table
      * @access public
      * @param  string   $name
      * @param  array    $arguments
-     * @return \PicoDb\Table
+     * @return Table
      */
     public function __call($name, array $arguments)
     {

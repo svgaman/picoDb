@@ -208,6 +208,23 @@ class Database
     }
 
     /**
+     * Escape an identifier list
+     *
+     * @access public
+     * @param  array     $identifiers  List of identifiers
+     * @param  string    $table        Table name
+     * @return string[]
+     */
+    public function escapeIdentifierList(array $identifiers, $table = '')
+    {
+        foreach ($identifiers as $key => $value) {
+            $identifiers[$key] = $this->escapeIdentifier($value, $table);
+        }
+
+        return $identifiers;
+    }
+
+    /**
      * Execute a prepared statement
      *
      * @access public
