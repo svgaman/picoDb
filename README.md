@@ -212,6 +212,13 @@ $db->table('mytable')->sum('columnB');
 $db->table('mytable')->left('my_other_table', 't1', 'id', 'mytable', 'foreign_key')->findAll();
 ```
 
+or
+
+```php
+// SELECT * FROM mytable LEFT JOIN my_other_table ON my_other_table.id=mytable.foreign_key
+$db->table('mytable')->join('my_other_table', 'id', 'foreign_key')->findAll();
+```
+
 ### Equals condition
 
 ```php

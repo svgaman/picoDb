@@ -353,6 +353,29 @@ class Table
      * Left join
      *
      * @access public
+     * @param  string   $table              Join table
+     * @param  string   $foreign_column     Foreign key on the join table
+     * @param  string   $local_column       Local column
+     * @param  string   $local_table        Local table
+     * @param  string   $alias              Join table alias
+     * @return Table
+     */
+    public function join($table, $foreign_column, $local_column, $local_table = '', $alias = '')
+    {
+        $this->joins[] = sprintf(
+            'LEFT JOIN %s ON %s=%s',
+            $this->db->escapeIdentifier($table),
+            $this->db->escapeIdentifier($alias ?: $table).'.'.$this->db->escapeIdentifier($foreign_column),
+            $this->db->escapeIdentifier($local_table ?: $this->name).'.'.$this->db->escapeIdentifier($local_column)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Left join
+     *
+     * @access public
      * @param  string   $table1
      * @param  string   $alias1
      * @param  string   $column1

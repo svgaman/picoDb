@@ -270,6 +270,16 @@ class SqliteTest extends PHPUnit_Framework_TestCase
             array('a' => 18, 'b' => 2),
             $this->db->table('test2')->columns('a', 'b')->eq('a', 18)->left('test1', 't1', 'foreign_key', 'test2', 'id')->findOne()
         );
+
+        $this->assertEquals(
+            array('a' => 18, 'b' => 2),
+            $this->db->table('test2')->columns('a', 'b')->eq('a', 18)->join('test1', 'foreign_key', 'id')->findOne()
+        );
+
+        $this->assertEquals(
+            array('a' => 18, 'b' => 2),
+            $this->db->table('test1')->columns('a', 'b')->join('test2', 'id', 'foreign_key')->findOne()
+        );
     }
 
     public function testHashTable()
