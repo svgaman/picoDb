@@ -410,10 +410,10 @@ class Table
         $order = $order === self::SORT_ASC || $order === self::SORT_DESC ? $order : self::SORT_ASC;
 
         if ($this->sql_order === '') {
-            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column, $this->name).' '.$order;
+            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.$order;
         }
         else {
-            $this->sql_order .= ', '.$this->db->escapeIdentifier($column, $this->name).' '.$order;
+            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' '.$order;
         }
 
         return $this;

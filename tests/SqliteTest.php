@@ -53,19 +53,19 @@ class SqliteTest extends PHPUnit_Framework_TestCase
 
     public function testOrderBy()
     {
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC', $this->db->table('test')->asc('a')->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC', $this->db->table('test')->orderBy('a', Table::SORT_ASC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" ASC', $this->db->table('test')->asc('a')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" ASC', $this->db->table('test')->orderBy('a', Table::SORT_ASC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC', $this->db->table('test')->desc('a', Table::SORT_DESC)->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" DESC', $this->db->table('test')->desc('a', Table::SORT_DESC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC, "test"."b" ASC', $this->db->table('test')->asc('a')->asc('b')->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" DESC', $this->db->table('test')->desc('a')->desc('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" ASC, "b" ASC', $this->db->table('test')->asc('a')->asc('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" DESC, "b" DESC', $this->db->table('test')->desc('a')->desc('b')->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" ASC, "test"."b" ASC', $this->db->table('test')->orderBy('a')->orderBy('b')->buildSelectQuery());
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->orderBy('b', Table::SORT_DESC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" ASC, "b" ASC', $this->db->table('test')->orderBy('a')->orderBy('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" DESC, "b" DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->orderBy('b', Table::SORT_DESC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM "test"     ORDER BY "test"."a" DESC, "test"."b" ASC', $this->db->table('test')->desc('a')->asc('b')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"     ORDER BY "a" DESC, "b" ASC', $this->db->table('test')->desc('a')->asc('b')->buildSelectQuery());
     }
 
     public function testLimit()
