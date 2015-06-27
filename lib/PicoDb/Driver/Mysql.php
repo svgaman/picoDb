@@ -167,4 +167,42 @@ class Mysql extends Base
         $rq = $this->pdo->prepare('UPDATE `'.$this->schemaTable.'` SET `version`=?');
         $rq->execute(array($version));
     }
+
+    /**
+     * Upsert for a key/value variable
+     *
+     * @access public
+     * @param  string  $table
+     * @param  string  $keyColumn
+     * @param  string  $valueColumn
+     * @param  array   $dictionnary
+     */
+    public function upsert($table, $keyColumn, $valueColumn, array $dictionnary)
+    {
+        try {
+
+            $sql = sprintf(
+                'REPLACE INTO %s (%s, %s) VALUES %s',
+                $this->escape($table),
+                $this->escape($keyColumn),
+                $this->escape($valueColumn),
+                implode(', ', array_fill(0, count($dictionnary), '(?, ?)'))
+            );
+
+            $values = array();
+
+            foreach ($dictionnary as $key => $value) {
+                $values[] = $key;
+                $values[] = $value;
+            }
+
+            $rq = $this->pdo->prepare($sql);
+            $rq->execute($values);
+
+            return true;
+        }
+        catch (PDOException $e) {
+            return false;
+        }
+    }
 }

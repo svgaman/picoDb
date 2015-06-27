@@ -126,4 +126,41 @@ class Sqlite extends Base
     {
         $this->pdo->exec('PRAGMA user_version='.$version);
     }
+
+    /**
+     * Upsert for a key/value variable
+     *
+     * @access public
+     * @param  string  $table
+     * @param  string  $keyColumn
+     * @param  string  $valueColumn
+     * @param  array   $dictionnary
+     */
+    public function upsert($table, $keyColumn, $valueColumn, array $dictionnary)
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+            foreach ($dictionnary as $key => $value) {
+
+                $sql = sprintf(
+                    'INSERT OR REPLACE INTO %s (%s, %s) VALUES (?, ?)',
+                    $this->escape($table),
+                    $this->escape($keyColumn),
+                    $this->escape($valueColumn)
+                );
+
+                $rq = $this->pdo->prepare($sql);
+                $rq->execute(array($key, $value));
+            }
+
+            $this->pdo->commit();
+
+            return true;
+        }
+        catch (PDOException $e) {
+            $this->pdo->rollback();
+            return false;
+        }
+    }
 }

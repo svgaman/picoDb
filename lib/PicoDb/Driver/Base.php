@@ -4,6 +4,7 @@ namespace PicoDb\Driver;
 
 use PDO;
 use LogicException;
+use PDOException;
 
 /**
  * Base Driver class
@@ -148,5 +149,44 @@ abstract class Base
     public function closeConnection()
     {
         $this->pdo = null;
+    }
+
+    /**
+     * Upsert for a key/value variable
+     *
+     * @access public
+     * @param  string  $table
+     * @param  string  $keyColumn
+     * @param  string  $valueColumn
+     * @param  array   $dictionnary
+     */
+    public function upsert($table, $keyColumn, $valueColumn, array $dictionnary)
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+            foreach ($dictionnary as $key => $value) {
+
+                $rq = $this->pdo->prepare('SELECT 1 FROM '.$this->escape($table).' WHERE '.$this->escape($keyColumn).'=?');
+                $rq->execute(array($key));
+
+                if ($rq->fetchColumn()) {
+                    $rq = $this->pdo->prepare('UPDATE '.$this->escape($table).' SET '.$this->escape($valueColumn).'=? WHERE '.$this->escape($keyColumn).'=?');
+                    $rq->execute(array($value, $key));
+                }
+                else {
+                    $rq = $this->pdo->prepare('INSERT INTO '.$this->escape($table).' ('.$this->escape($keyColumn).', '.$this->escape($valueColumn).') VALUES (?, ?)');
+                    $rq->execute(array($key, $value));
+                }
+            }
+
+            $this->pdo->commit();
+
+            return true;
+        }
+        catch (PDOException $e) {
+            $this->pdo->rollback();
+            return false;
+        }
     }
 }

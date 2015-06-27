@@ -18,7 +18,7 @@ class Hashtable extends Table
      * @access private
      * @var    string
      */
-    private $column_key = 'key';
+    private $keyColumn = 'key';
 
     /**
      * Column for the value
@@ -26,7 +26,7 @@ class Hashtable extends Table
      * @access private
      * @var    string
      */
-    private $column_value = 'value';
+    private $valueColumn = 'value';
 
     /**
      * Set the key column
@@ -37,7 +37,7 @@ class Hashtable extends Table
      */
     public function columnKey($column)
     {
-        $this->column_key = $column;
+        $this->keyColumn = $column;
         return $this;
     }
 
@@ -50,7 +50,7 @@ class Hashtable extends Table
      */
     public function columnValue($column)
     {
-        $this->column_value = $column;
+        $this->valueColumn = $column;
         return $this;
     }
 
@@ -58,19 +58,12 @@ class Hashtable extends Table
      * Insert or update
      *
      * @access public
-     * @param  array    $data
+     * @param  array    $hashmap
      * @return boolean
      */
-    public function put(array $data)
+    public function put(array $hashmap)
     {
-        switch ($this->db->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME)) {
-            case 'mysql':
-                return $this->handleMysqlUpsert($data);
-            case 'sqlite':
-                return $this->handleSqliteUpsert($data);
-            default:
-                return $this->handleGenericUpsert($data);
-        }
+        return $this->db->getDriver()->upsert($this->getName(), $this->keyColumn, $this->valueColumn, $hashmap);
     }
 
     /**
@@ -85,11 +78,11 @@ class Hashtable extends Table
 
         // setup where condition
         if (func_num_args() > 0) {
-            $this->in($this->column_key, func_get_args());
+            $this->in($this->keyColumn, func_get_args());
         }
 
         // setup to select columns in case that there are more than two
-        $this->columns($this->column_key, $this->column_value);
+        $this->columns($this->keyColumn, $this->valueColumn);
 
         $rq = $this->db->execute($this->buildSelectQuery(), $this->condition->getValues());
         $rows = $rq->fetchAll(PDO::FETCH_NUM);
@@ -111,90 +104,8 @@ class Hashtable extends Table
      */
     public function getAll($key, $value)
     {
-        $this->column_key = $key;
-        $this->column_value = $value;
+        $this->keyColumn = $key;
+        $this->valueColumn = $value;
         return $this->get();
-    }
-
-    /**
-     * Handle UPSERT for Mysql
-     *
-     * @access private
-     * @param  array    $data
-     * @return boolean
-     */
-    private function handleMysqlUpsert(array $data)
-    {
-        $values = array();
-
-        $sql = sprintf(
-            'REPLACE INTO %s (%s) VALUES %s',
-            $this->db->escapeIdentifier($this->name),
-            "$this->column_key, $this->column_value",
-            implode(', ', array_fill(0, count($data), '(?, ?)'))
-        );
-
-        foreach ($data as $key => $value) {
-            $values[] = $key;
-            $values[] = $value;
-        }
-
-        $this->db->execute($sql, $values);
-
-        return true;
-    }
-
-    /**
-     * Handle UPSERT for Sqlite
-     *
-     * @access private
-     * @param  array    $data
-     * @return boolean
-     */
-    private function handleSqliteUpsert(array $data)
-    {
-        $this->db->startTransaction();
-
-        foreach ($data as $key => $value) {
-
-            $sql = sprintf(
-                'INSERT OR REPLACE INTO %s (%s) VALUES (?, ?)',
-                $this->db->escapeIdentifier($this->name),
-                $this->db->escapeIdentifier($this->column_key).', '.$this->db->escapeIdentifier($this->column_value)
-            );
-
-            $this->db->execute($sql, array($key, $value));
-        }
-
-        $this->db->closeTransaction();
-
-        return true;
-    }
-
-    /**
-     * Handle UPSERT for everything else
-     *
-     * @access private
-     * @param  array    $data
-     * @return boolean
-     */
-    private function handleGenericUpsert(array $data)
-    {
-        $this->db->startTransaction();
-
-        foreach($data as $key => $value) {
-            $this->eq($this->column_key, $key);
-
-            if ($this->count() === 1) {
-                $this->update(array($this->column_key => $key, $this->column_value => $value));
-            }
-            else {
-                $this->insert(array($this->column_key => $key, $this->column_value => $value));
-            }
-        }
-
-        $this->db->closeTransaction();
-
-        return true;
     }
 }
