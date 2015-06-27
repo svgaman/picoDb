@@ -25,6 +25,11 @@ Requirements
 - PDO extension
 - Sqlite or Mysql or Postgresql
 
+Author
+------
+
+Frédéric Guillot
+
 Documentation
 -------------
 
@@ -80,11 +85,15 @@ $db = new Database([
 ]);
 ```
 
-### Execute any SQL request
+### Execute any SQL query
 
 ```php
 $db->execute('CREATE TABLE mytable (column1 TEXT)');
 ```
+
+- Returns a `PDOStatement` if successful
+- Returns `false` if there is a duplicate key error
+- Throws a `SQLException` for other errors
 
 ### Insertion
 
@@ -112,6 +121,10 @@ $db->transaction(function ($db) {
     $db->table('mytable')->save(['column1' => 'bar']);
 });
 ```
+
+- Returns `true` if the callback returns null
+- Returns the callback return value otherwise
+- Throws an SQLException if something is wrong
 
 or
 
@@ -518,7 +531,7 @@ else {
 Setup a new instance:
 
 ```php
-PicoDb\Database::bootstrap('myinstance', function() {
+PicoDb\Database::setInstance('myinstance', function() {
 
     $db = new PicoDb\Database(array(
         'driver' => 'sqlite',
@@ -537,5 +550,5 @@ PicoDb\Database::bootstrap('myinstance', function() {
 Get this instance anywhere in your code:
 
 ```php
-PicoDb\Database::get('myinstance')->table(...)
+PicoDb\Database::getInstance('myinstance')->table(...)
 ```

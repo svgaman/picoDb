@@ -55,4 +55,65 @@ class SqliteDatabaseTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, $this->db->execute('SELECT COUNT(*) FROM foobar WHERE something=?', array('a'))->fetchColumn());
     }
+
+    public function testThatTransactionReturnsAValue()
+    {
+        $this->assertEquals('a', $this->db->transaction(function ($db) {
+
+            $db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
+            $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
+
+            return $db->execute('SELECT something FROM foobar WHERE something=?', array('a'))->fetchColumn();
+        }));
+    }
+
+    public function testThatTransactionReturnsTrue()
+    {
+        $this->assertTrue($this->db->transaction(function ($db) {
+            $db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
+            $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
+        }));
+    }
+
+    /**
+     * @expectedException PicoDb\SQLException
+     */
+    public function testThatTransactionThrowExceptionWhenRollbacked()
+    {
+        $this->assertFalse($this->db->transaction(function ($db) {
+            $db->getConnection()->exec('CREATE TABL');
+        }));
+    }
+
+    public function testThatTransactionReturnsFalseWhithDuplicateKey()
+    {
+        $this->assertFalse($this->db->transaction(function ($db) {
+            $db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
+            $r1 = $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
+            $r2 = $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
+            return $r1 && $r2;
+        }));
+    }
+
+    public function testGetInstance()
+    {
+        Database::setInstance('main', function () {
+            return new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
+        });
+
+        $instance1 = Database::getInstance('main');
+        $instance2 = Database::getInstance('main');
+
+        $this->assertInstanceOf('PicoDb\Database', $instance1);
+        $this->assertInstanceOf('PicoDb\Database', $instance2);
+        $this->assertTrue($instance1 === $instance2);
+    }
+
+    /**
+     * @expectedException LogicException
+     */
+    public function testGetMissingInstance()
+    {
+        Database::getInstance('notfound');
+    }
 }

@@ -109,7 +109,7 @@ class Database
      * @param  string    $name        Instance name
      * @param  Closure   $callback    Callback
      */
-    public static function bootstrap($name, Closure $callback)
+    public static function setInstance($name, Closure $callback)
     {
         self::$instances[$name] = $callback;
     }
@@ -122,7 +122,7 @@ class Database
      * @param  string    $name   Instance name
      * @return Database
      */
-    public static function get($name)
+    public static function getInstance($name)
     {
         if (! isset(self::$instances[$name])) {
             throw new LogicException('No database instance created with that name');
@@ -273,15 +273,7 @@ class Database
             return $rq;
         }
         catch (PDOException $e) {
-
-            $this->cancelTransaction();
-            $this->setLogMessage($e->getMessage());
-
-            if ($this->driver->isDuplicateKeyError($e->getCode())) {
-                return false;
-            }
-
-            throw new SQLException('SQL error'.($this->logQueries ? ': '.$e->getMessage() : ''));
+            return $this->handleSqlError($e);
         }
     }
 
@@ -294,11 +286,29 @@ class Database
      */
     public function transaction(Closure $callback)
     {
-        $this->getConnection()->beginTransaction();
-        $result = $callback($this); // Rollback is done in the execute() method
-        $this->closeTransaction();
+        try {
 
-        return $result === null ? true : $result;
+            $this->startTransaction();
+            $result = $callback($this);
+            $this->closeTransaction();
+
+            return $result === null ? true : $result;
+        }
+        catch (PDOException $e) {
+            return $this->handleSqlError($e);
+        }
+    }
+
+    private function handleSqlError(PDOException $e)
+    {
+        $this->cancelTransaction();
+        $this->setLogMessage($e->getMessage());
+
+        if ($this->driver->isDuplicateKeyError($e->getCode())) {
+            return false;
+        }
+
+        throw new SQLException('SQL error'.($this->logQueries ? ': '.$e->getMessage() : ''));
     }
 
     /**
