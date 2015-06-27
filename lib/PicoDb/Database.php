@@ -299,6 +299,13 @@ class Database
         }
     }
 
+    /**
+     * Handle PDOException
+     *
+     * @access private
+     * @param  PDOException $e
+     * @return boolean
+     */
     private function handleSqlError(PDOException $e)
     {
         $this->cancelTransaction();
