@@ -565,10 +565,10 @@ class Table
      * Add callback to alter the resultset
      *
      * @access public
-     * @param  Closure  $callback
+     * @param  Closure|array  $callback
      * @return Table
      */
-    public function callback(Closure $callback)
+    public function callback($callback)
     {
         $this->callback = $callback;
         return $this;

@@ -235,6 +235,13 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         };
 
         $this->assertEquals(array('test'), $this->db->table('foobar')->callback($func)->findAll());
+        $this->assertEquals(array('plop'), $this->db->table('foobar')->callback(array($this, 'myCallback'))->findAll());
+    }
+
+    public function myCallback(array $records)
+    {
+        $this->assertEquals(array(array('a' => 'b'), array('a' => 'c')), $records);
+        return array('plop');
     }
 
     public function testSum()
