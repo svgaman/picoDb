@@ -3,11 +3,28 @@
 namespace PicoDb;
 
 use PDO;
+use Closure;
 
 /**
  * Table
  *
  * @author   Frederic Guillot
+ *
+ * @method   Table   addCondition($sql)
+ * @method   Table   beginOr()
+ * @method   Table   closeOr()
+ * @method   Table   eq($column, $value)
+ * @method   Table   neq($column, $value)
+ * @method   Table   in($column, array $values)
+ * @method   Table   notin($column, array $values)
+ * @method   Table   like($column, $value)
+ * @method   Table   ilike($column, $value)
+ * @method   Table   gt($column, $value)
+ * @method   Table   lt($column, $value)
+ * @method   Table   gte($column, $value)
+ * @method   Table   lte($column, $value)
+ * @method   Table   isNull($column)
+ * @method   Table   notNull($column)
  */
 class Table
 {
@@ -112,7 +129,7 @@ class Table
      * Callback for result filtering
      *
      * @access private
-     * @var    \Closure
+     * @var    Closure
      */
     private $callback = null;
 
@@ -269,7 +286,6 @@ class Table
      * Fetch one row
      *
      * @access public
-     * @param  array    $data
      * @return array|null
      */
     public function findOne()
@@ -549,10 +565,10 @@ class Table
      * Add callback to alter the resultset
      *
      * @access public
-     * @param  array|callable  $callback
+     * @param  Closure  $callback
      * @return Table
      */
-    public function callback($callback)
+    public function callback(Closure $callback)
     {
         $this->callback = $callback;
         return $this;

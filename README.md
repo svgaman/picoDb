@@ -3,6 +3,10 @@ PicoDb
 
 PicoDb is a minimalist database query builder for PHP.
 
+[![Build Status](https://travis-ci.org/fguillot/picoDb.svg?branch=master)](https://travis-ci.org/fguillot/picoDb)
+
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fguillot/picoDb/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fguillot/picoDb/?branch=master)
+
 Features
 --------
 
@@ -11,7 +15,7 @@ Features
 - Requires only PDO
 - Use prepared statements
 - Handle schema migrations
-- Fully unit tested
+- Fully unit tested on PHP 5.3, 5.4, 5.5, 5.6 and 7.0
 - License: MIT
 
 Requirements

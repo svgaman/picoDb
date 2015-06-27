@@ -3,14 +3,11 @@
 namespace PicoDb;
 
 use Closure;
-use Exception;
 use PDOException;
 use LogicException;
 use PicoDb\Driver\Sqlite;
 use PicoDb\Driver\Mysql;
 use PicoDb\Driver\Postgres;
-
-class SQLException extends Exception {};
 
 /**
  * Database

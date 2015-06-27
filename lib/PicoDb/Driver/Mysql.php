@@ -3,6 +3,7 @@
 namespace PicoDb\Driver;
 
 use PDO;
+use PDOException;
 
 /**
  * Mysql Driver
