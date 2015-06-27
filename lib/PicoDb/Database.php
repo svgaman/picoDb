@@ -242,10 +242,12 @@ class Database
     /**
      * Execute a prepared statement
      *
+     * Note: returns false on duplicate keys instead of SQLException
+     *
      * @access public
      * @param  string    $sql      SQL query
      * @param  array     $values   Values
-     * @return PDOStatement
+     * @return PDOStatement|false
      */
     public function execute($sql, array $values = array())
     {
@@ -275,9 +277,11 @@ class Database
             $this->cancelTransaction();
             $this->setLogMessage($e->getMessage());
 
-            if (! $this->driver->isDuplicateKeyError($e->getCode())) {
-                throw new SQLException('SQL error'.($this->logQueries ? ': '.$e->getMessage() : ''));
+            if ($this->driver->isDuplicateKeyError($e->getCode())) {
+                return false;
             }
+
+            throw new SQLException('SQL error'.($this->logQueries ? ': '.$e->getMessage() : ''));
         }
     }
 

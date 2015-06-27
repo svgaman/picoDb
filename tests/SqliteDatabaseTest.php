@@ -50,8 +50,8 @@ class SqliteDatabaseTest extends PHPUnit_Framework_TestCase
     {
         $this->db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
 
-        $this->db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
-        $this->db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
+        $this->assertNotFalse($this->db->execute('INSERT INTO foobar (something) VALUES (?)', array('a')));
+        $this->assertFalse($this->db->execute('INSERT INTO foobar (something) VALUES (?)', array('a')));
 
         $this->assertEquals(1, $this->db->execute('SELECT COUNT(*) FROM foobar WHERE something=?', array('a'))->fetchColumn());
     }
