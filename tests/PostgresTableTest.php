@@ -1,34 +1,22 @@
 <?php
 
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use PicoDb\Database;
 use PicoDb\Table;
 
-class SqliteTest extends PHPUnit_Framework_TestCase
+class PostgresTableTest extends PHPUnit_Framework_TestCase
 {
     private $db;
 
     public function setUp()
     {
-        $this->db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->log_queries = true;
-    }
-
-    public function testEscapeIdentifer()
-    {
-        $this->assertEquals('"a"', $this->db->escapeIdentifier('a'));
-        $this->assertEquals('a.b', $this->db->escapeIdentifier('a.b'));
-        $this->assertEquals('"c"."a"', $this->db->escapeIdentifier('a', 'c'));
-        $this->assertEquals('a.b', $this->db->escapeIdentifier('a.b', 'c'));
-        $this->assertEquals('SELECT COUNT(*) FROM test', $this->db->escapeIdentifier('SELECT COUNT(*) FROM test'));
-        $this->assertEquals('SELECT COUNT(*) FROM test', $this->db->escapeIdentifier('SELECT COUNT(*) FROM test', 'b'));
-    }
-
-    public function testEscapeIdentiferList()
-    {
-        $this->assertEquals(array('"c"."a"', '"c"."b"'), $this->db->escapeIdentifierList(array('a', 'b'), 'c'));
-        $this->assertEquals(array('"a"', 'd.b'), $this->db->escapeIdentifierList(array('a', 'd.b')));
+        $this->db = new Database(array('driver' => 'postgres', 'hostname' => 'localhost', 'username' => 'postgres', 'password' => 'postgres', 'database' => 'picodb'));
+        $this->db->getConnection()->exec('DROP TABLE IF EXISTS test1');
+        $this->db->getConnection()->exec('DROP TABLE IF EXISTS test2');
+        $this->db->getConnection()->exec('DROP TABLE IF EXISTS foobar');
+        $this->db->getConnection()->exec('DROP TABLE IF EXISTS schema_version');
+        $this->db->log_queries = true;
     }
 
     public function testSelect()
@@ -146,7 +134,7 @@ class SqliteTest extends PHPUnit_Framework_TestCase
     {
         $table = $this->db->table('test');
 
-        $this->assertEquals('SELECT * FROM "test"   WHERE "a" LIKE ?', $table->ilike('a', '%foobar%')->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM "test"   WHERE "a" ILIKE ?', $table->ilike('a', '%foobar%')->buildSelectQuery());
         $this->assertEquals(array('%foobar%'), $table->condition->getValues());
     }
 
@@ -206,19 +194,6 @@ class SqliteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(2, 5), $table->condition->getValues());
     }
 
-    public function testExecute()
-    {
-        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a TEXT)'));
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testExecuteWithSQLError()
-    {
-        $this->assertNotFalse($this->db->execute('CREATE T'));
-    }
-
     public function testInsertUpdate()
     {
         $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a TEXT)'));
@@ -261,7 +236,7 @@ class SqliteTest extends PHPUnit_Framework_TestCase
     public function testLeftJoin()
     {
         $this->assertNotFalse($this->db->execute('CREATE TABLE test1 (a INTEGER NOT NULL, foreign_key INTEGER NOT NULL)'));
-        $this->assertNotFalse($this->db->execute('CREATE TABLE test2 (id INTEGERNOT NULL, b INTEGER NOT NULL)'));
+        $this->assertNotFalse($this->db->execute('CREATE TABLE test2 (id INTEGER NOT NULL, b INTEGER NOT NULL)'));
 
         $this->assertTrue($this->db->table('test2')->insert(array('id' => 42, 'b' => 2)));
         $this->assertTrue($this->db->table('test1')->insert(array('a' => 18, 'foreign_key' => 42)));
@@ -285,36 +260,36 @@ class SqliteTest extends PHPUnit_Framework_TestCase
     public function testHashTable()
     {
         $this->assertNotFalse($this->db->execute(
-            'CREATE TABLE toto (
+            'CREATE TABLE foobar (
                 column1 TEXT NOT NULL UNIQUE,
                 column2 TEXT default NULL
             )'
         ));
 
-        $this->assertTrue($this->db->table('toto')->insert(array('column1' => 'option1', 'column2' => 'value1')));
-        $this->assertTrue($this->db->table('toto')->insert(array('column1' => 'option2', 'column2' => 'value2')));
-        $this->assertTrue($this->db->table('toto')->insert(array('column1' => 'option3', 'column2' => 'value3')));
+        $this->assertTrue($this->db->table('foobar')->insert(array('column1' => 'option1', 'column2' => 'value1')));
+        $this->assertTrue($this->db->table('foobar')->insert(array('column1' => 'option2', 'column2' => 'value2')));
+        $this->assertTrue($this->db->table('foobar')->insert(array('column1' => 'option3', 'column2' => 'value3')));
 
         $values = array(
             'option1' => 'hey',
             'option4' => 'ho',
         );
 
-        $this->assertTrue($this->db->hashtable('toto')->columnKey('column1')->columnValue('column2')->put($values));
+        $this->assertTrue($this->db->hashtable('foobar')->columnKey('column1')->columnValue('column2')->put($values));
 
         $this->assertEquals(
             array('option2' => 'value2', 'option4' => 'ho'),
-            $this->db->hashtable('toto')->columnKey('column1')->columnValue('column2')->get('option2', 'option4')
+            $this->db->hashtable('foobar')->columnKey('column1')->columnValue('column2')->get('option2', 'option4')
         );
 
         $this->assertEquals(
             array('option2' => 'value2', 'option3' => 'value3', 'option1' => 'hey', 'option4' => 'ho'),
-            $this->db->hashtable('toto')->columnKey('column1')->columnValue('column2')->get()
+            $this->db->hashtable('foobar')->columnKey('column1')->columnValue('column2')->get()
         );
 
         $this->assertEquals(
             array('option2' => 'value2', 'option3' => 'value3', 'option1' => 'hey', 'option4' => 'ho'),
-            $this->db->hashtable('toto')->getAll('column1', 'column2')
+            $this->db->hashtable('foobar')->getAll('column1', 'column2')
         );
     }
 }

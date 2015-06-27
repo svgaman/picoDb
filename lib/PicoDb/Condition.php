@@ -198,7 +198,7 @@ class Condition
      */
     public function like($column, $value)
     {
-        $this->addCondition($this->db->escapeIdentifier($column).' '.$this->db->getConnection()->operatorLikeCaseSensitive().' ?');
+        $this->addCondition($this->db->escapeIdentifier($column).' '.$this->db->getDriver()->getOperator('LIKE').' ?');
         $this->values[] = $value;
     }
 
@@ -211,7 +211,7 @@ class Condition
      */
     public function ilike($column, $value)
     {
-        $this->addCondition($this->db->escapeIdentifier($column).' '.$this->db->getConnection()->operatorLikeNotCaseSensitive().' ?');
+        $this->addCondition($this->db->escapeIdentifier($column).' '.$this->db->getDriver()->getOperator('ILIKE').' ?');
         $this->values[] = $value;
     }
 

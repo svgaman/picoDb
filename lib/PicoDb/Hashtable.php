@@ -139,13 +139,13 @@ class Hashtable extends Table
             $values[] = $value;
         }
 
-        return $this->db->execute($sql, $values);
+        $this->db->execute($sql, $values);
+
+        return true;
     }
 
     /**
      * Handle UPSERT for Sqlite
-     *
-     * Note: requires sqlite library > 3.7.11 (bundled with PHP 5.5.11+)
      *
      * @access private
      * @param  array    $data

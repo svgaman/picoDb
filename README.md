@@ -38,14 +38,13 @@ use PicoDb\Database;
 $db = new Database(['driver' => 'sqlite', 'filename' => ':memory:']);
 
 // Mysql driver
-// Optional options: "schema_table" (the default table name is "schema_version") and "port"
+// Optional options: "charset", "schema_table" (the default table name is "schema_version") and "port"
 $db = new Database([
     'driver' => 'mysql',
     'hostname' => 'localhost',
     'username' => 'root',
     'password' => '',
     'database' => 'my_db_name',
-    'charset' => 'utf8',
 ]);
 
 // Postgres driver
@@ -75,6 +74,12 @@ or
 
 ```php
 $db->table('mytable')->insert(['column1' => 'test']);
+```
+
+### Fetch last inserted id
+
+```php
+$db->getLastId();
 ```
 
 ### Transactions
