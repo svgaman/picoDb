@@ -310,6 +310,25 @@ class Table
     }
 
     /**
+     * Exists
+     *
+     * @access public
+     * @return integer
+     */
+    public function exists()
+    {
+        $sql = sprintf(
+            'SELECT 1 FROM %s '.implode(' ', $this->joins).$this->condition->build(),
+            $this->db->escapeIdentifier($this->name)
+        );
+
+        $rq = $this->db->execute($sql, $this->condition->getValues());
+        $result = $rq->fetchColumn();
+
+        return $result ? true : false;
+    }
+
+    /**
      * Count
      *
      * @access public

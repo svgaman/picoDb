@@ -209,6 +209,10 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('b', $this->db->table('foobar')->findOneColumn('a'));
 
+        $this->assertTrue($this->db->table('foobar')->exists());
+        $this->assertTrue($this->db->table('foobar')->eq('a', 'c')->exists());
+        $this->assertFalse($this->db->table('foobar')->eq('a', 'e')->exists());
+
         $this->assertEquals(2, $this->db->table('foobar')->count());
         $this->assertEquals(1, $this->db->table('foobar')->eq('a', 'c')->count());
         $this->assertEquals(0, $this->db->table('foobar')->eq('a', 'e')->count());

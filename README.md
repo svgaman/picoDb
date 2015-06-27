@@ -210,7 +210,15 @@ $db->table('mytable')->count();
 $db->table('mytable')->sum('columnB');
 ```
 
-### Left joins:
+### Exists
+
+Returns true if a record exists otherwise false.
+
+```php
+$db->table('mytable')->eq('column1', 12)->exists();
+```
+
+### Left joins
 
 ```php
 // SELECT * FROM mytable LEFT JOIN my_other_table AS t1 ON t1.id=mytable.foreign_key
