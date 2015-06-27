@@ -334,7 +334,7 @@ $db->table('mytable')
 Log generated queries:
 
 ```php
-$db->log_queries = true;
+$db->logQueries = true;
 ```
 
 Mesure each query time:
@@ -346,7 +346,7 @@ $db->stopwatch = true;
 Get the number of queries executed:
 
 ```php
-echo $db->nb_queries;
+echo $db->nbQueries;
 ```
 
 Get log messages:

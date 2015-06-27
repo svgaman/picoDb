@@ -57,7 +57,7 @@ class Database
      * @access public
      * @var boolean
      */
-    public $log_queries = false;
+    public $logQueries = false;
 
     /**
      * Number of SQL queries executed
@@ -65,7 +65,7 @@ class Database
      * @access public
      * @var integer
      */
-    public $nb_queries = 0;
+    public $nbQueries = 0;
 
     /**
      * Initialize the driver
@@ -254,7 +254,7 @@ class Database
     {
         try {
 
-            if ($this->log_queries) {
+            if ($this->logQueries) {
                 $this->setLogMessage($sql);
             }
 
@@ -269,7 +269,7 @@ class Database
                 $this->setLogMessage('DURATION='.(microtime(true) - $start));
             }
 
-            $this->nb_queries++;
+            $this->nbQueries++;
 
             return $rq;
         }
@@ -279,7 +279,7 @@ class Database
             $this->setLogMessage($e->getMessage());
 
             if (! $this->driver->isDuplicateKeyError($e->getCode())) {
-                throw new SQLException('SQL error'.($this->log_queries ? ': '.$e->getMessage() : ''));
+                throw new SQLException('SQL error'.($this->logQueries ? ': '.$e->getMessage() : ''));
             }
         }
     }

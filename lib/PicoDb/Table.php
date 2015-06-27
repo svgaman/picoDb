@@ -58,7 +58,7 @@ class Table
      * @access private
      * @var    string
      */
-    private $sql_limit = '';
+    private $sqlLimit = '';
 
     /**
      * SQL offset
@@ -66,7 +66,7 @@ class Table
      * @access private
      * @var    string
      */
-    private $sql_offset = '';
+    private $sqlOffset = '';
 
     /**
      * SQL order
@@ -74,7 +74,7 @@ class Table
      * @access private
      * @var    string
      */
-    private $sql_order = '';
+    private $sqlOrder = '';
 
     /**
      * SQL custom SELECT value
@@ -82,7 +82,7 @@ class Table
      * @access private
      * @var    string
      */
-    private $sql_select = '';
+    private $sqlSelect = '';
 
     /**
      * SQL joins
@@ -106,7 +106,7 @@ class Table
      * @access private
      * @var    array
      */
-    private $group_by = array();
+    private $groupBy = array();
 
     /**
      * Callback for result filtering
@@ -318,7 +318,7 @@ class Table
     public function count()
     {
         $sql = sprintf(
-            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->condition->build().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            'SELECT COUNT(*) FROM %s '.implode(' ', $this->joins).$this->condition->build().$this->sqlOrder.$this->sqlLimit.$this->sqlOffset,
             $this->db->escapeIdentifier($this->name)
         );
 
@@ -338,7 +338,7 @@ class Table
     public function sum($column)
     {
         $sql = sprintf(
-            'SELECT SUM(%s) FROM %s '.implode(' ', $this->joins).$this->condition->build().$this->sql_order.$this->sql_limit.$this->sql_offset,
+            'SELECT SUM(%s) FROM %s '.implode(' ', $this->joins).$this->condition->build().$this->sqlOrder.$this->sqlLimit.$this->sqlOffset,
             $this->db->escapeIdentifier($column),
             $this->db->escapeIdentifier($this->name)
         );
@@ -409,11 +409,11 @@ class Table
         $order = strtoupper($order);
         $order = $order === self::SORT_ASC || $order === self::SORT_DESC ? $order : self::SORT_ASC;
 
-        if ($this->sql_order === '') {
-            $this->sql_order = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.$order;
+        if ($this->sqlOrder === '') {
+            $this->sqlOrder = ' ORDER BY '.$this->db->escapeIdentifier($column).' '.$order;
         }
         else {
-            $this->sql_order .= ', '.$this->db->escapeIdentifier($column).' '.$order;
+            $this->sqlOrder .= ', '.$this->db->escapeIdentifier($column).' '.$order;
         }
 
         return $this;
@@ -455,7 +455,7 @@ class Table
     public function limit($value)
     {
         if (! is_null($value)) {
-            $this->sql_limit = ' LIMIT '.(int) $value;
+            $this->sqlLimit = ' LIMIT '.(int) $value;
         }
 
         return $this;
@@ -471,7 +471,7 @@ class Table
     public function offset($value)
     {
         if (! is_null($value)) {
-            $this->sql_offset = ' OFFSET '.(int) $value;
+            $this->sqlOffset = ' OFFSET '.(int) $value;
         }
 
         return $this;
@@ -485,7 +485,7 @@ class Table
      */
     public function groupBy()
     {
-        $this->group_by = func_get_args();
+        $this->groupBy = func_get_args();
         return $this;
     }
 
@@ -497,7 +497,7 @@ class Table
      */
     public function select($select)
     {
-        $this->sql_select = $select;
+        $this->sqlSelect = $select;
         return $this;
     }
 
@@ -547,23 +547,23 @@ class Table
      */
     public function buildSelectQuery()
     {
-        if (empty($this->sql_select)) {
+        if (empty($this->sqlSelect)) {
             $this->columns = $this->db->escapeIdentifierList($this->columns);
-            $this->sql_select = ($this->distinct ? 'DISTINCT ' : '').(empty($this->columns) ? '*' : implode(', ', $this->columns));
+            $this->sqlSelect = ($this->distinct ? 'DISTINCT ' : '').(empty($this->columns) ? '*' : implode(', ', $this->columns));
         }
 
-        $this->group_by = $this->db->escapeIdentifierList($this->group_by);
+        $this->groupBy = $this->db->escapeIdentifierList($this->groupBy);
 
         return trim(sprintf(
             'SELECT %s FROM %s %s %s %s %s %s %s',
-            $this->sql_select,
+            $this->sqlSelect,
             $this->db->escapeIdentifier($this->name),
             implode(' ', $this->joins),
             $this->condition->build(),
-            empty($this->group_by) ? '' : 'GROUP BY '.implode(', ', $this->group_by),
-            $this->sql_order,
-            $this->sql_limit,
-            $this->sql_offset
+            empty($this->groupBy) ? '' : 'GROUP BY '.implode(', ', $this->groupBy),
+            $this->sqlOrder,
+            $this->sqlLimit,
+            $this->sqlOffset
         ));
     }
 
