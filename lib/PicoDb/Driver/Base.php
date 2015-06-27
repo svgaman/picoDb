@@ -114,7 +114,6 @@ abstract class Base
     /**
      * Constructor
      *
-     * @abstract
      * @access public
      * @param  array   $settings
      */

@@ -4,18 +4,42 @@ namespace PicoDb;
 
 use PDOException;
 
+/**
+ * Schema migration class
+ *
+ * @author   Frederic Guillot
+ */
 class Schema
 {
+    /**
+     * Database instance
+     *
+     * @access protected
+     * @var Database
+     */
     protected $db = null;
 
+    /**
+     * Constructor
+     *
+     * @access public
+     * @param  Database  $db
+     */
     public function __construct(Database $db)
     {
         $this->db = $db;
     }
 
+    /**
+     * Check the schema version and run the migrations
+     *
+     * @access public
+     * @param  integer  $last_version
+     * @return boolean
+     */
     public function check($last_version = 1)
     {
-        $current_version = $this->db->getConnection()->getSchemaVersion();
+        $current_version = $this->db->getDriver()->getSchemaVersion();
 
         if ($current_version < $last_version) {
             return $this->migrateTo($current_version, $last_version);
@@ -24,6 +48,14 @@ class Schema
         return true;
     }
 
+    /**
+     * Migrate the schema to one version to another
+     *
+     * @access public
+     * @param  integer  $current_version
+     * @param  integer  $next_version
+     * @return boolean
+     */
     public function migrateTo($current_version, $next_version)
     {
         try {
@@ -36,7 +68,7 @@ class Schema
 
                 if (function_exists($function_name)) {
                     call_user_func($function_name, $this->db->getConnection());
-                    $this->db->getConnection()->setSchemaVersion($i);
+                    $this->db->getDriver()->setSchemaVersion($i);
                 }
             }
 
