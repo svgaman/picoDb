@@ -30,7 +30,7 @@ Documentation
 composer require fguillot/picodb @stable
 ```
 
-### Database connections
+### Database connection
 
 Sqlite:
 
@@ -46,7 +46,7 @@ The Sqlite driver enable foreign keys by default.
 Mysql:
 
 ```php
-// Optional options:
+// Optional attributes:
 // "charset"
 // "schema_table" (the default table name is "schema_version")
 // "port"
@@ -63,7 +63,7 @@ $db = new Database([
 Postgres:
 
 ```php
-// Optional options:
+// Optional attributes:
 // "schema_table" (the default table name is "schema_version")
 // "port"
 
