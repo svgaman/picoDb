@@ -65,7 +65,7 @@ class Mysql extends Base
      */
     public function enableForeignKeys()
     {
-        // TODO
+        $this->pdo->exec('SET FOREIGN_KEY_CHECKS=1');
     }
 
     /**
@@ -75,7 +75,7 @@ class Mysql extends Base
      */
     public function disableForeignKeys()
     {
-        // TODO
+        $this->pdo->exec('SET FOREIGN_KEY_CHECKS=0');
     }
 
     /**

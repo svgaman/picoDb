@@ -61,7 +61,6 @@ class Postgres extends Base
      */
     public function enableForeignKeys()
     {
-        // TODO
     }
 
     /**
@@ -71,7 +70,6 @@ class Postgres extends Base
      */
     public function disableForeignKeys()
     {
-        // TODO
     }
 
     /**

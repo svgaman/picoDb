@@ -22,8 +22,8 @@ class Database
     /**
      * Database instances
      *
-     * @access private
      * @static
+     * @access private
      * @var array
      */
     private static $instances = array();

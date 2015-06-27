@@ -41,6 +41,8 @@ use PicoDb\Database;
 $db = new Database(['driver' => 'sqlite', 'filename' => ':memory:']);
 ```
 
+The Sqlite driver enable foreign keys by default.
+
 Mysql:
 
 ```php
@@ -485,6 +487,7 @@ function version_2($pdo)
 
 - The method `check()` execute all migrations until the version specified
 - If an error occurs, the transaction is rollbacked
+- Foreign keys checks are disabled if possible during the migration
 
 Example:
 

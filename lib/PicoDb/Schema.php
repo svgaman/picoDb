@@ -61,6 +61,7 @@ class Schema
         try {
 
             $this->db->startTransaction();
+            $this->db->getDriver()->disableForeignKeys();
 
             for ($i = $current_version + 1; $i <= $next_version; $i++) {
 
@@ -72,11 +73,13 @@ class Schema
             }
 
             $this->db->getDriver()->setSchemaVersion($i - 1);
+            $this->db->getDriver()->enableForeignKeys();
             $this->db->closeTransaction();
         }
         catch (PDOException $e) {
             $this->db->setLogMessage($function_name.' => '.$e->getMessage());
             $this->db->cancelTransaction();
+            $this->db->getDriver()->enableForeignKeys();
             return false;
         }
 
