@@ -11,13 +11,14 @@ Features
 - Requires only PDO
 - Use prepared statements
 - Handle schema migrations
+- Fully unit tested
 - License: MIT
 
 Requirements
 ------------
 
 - PHP >= 5.3
-- PDO
+- PDO extension
 - Sqlite or Mysql or Postgresql
 
 Documentation
@@ -29,16 +30,25 @@ Documentation
 composer require fguillot/picodb @stable
 ```
 
-### Connect to your database
+### Database connections
+
+Sqlite:
 
 ```php
 use PicoDb\Database;
 
 // Sqlite driver
 $db = new Database(['driver' => 'sqlite', 'filename' => ':memory:']);
+```
 
-// Mysql driver
-// Optional options: "charset", "schema_table" (the default table name is "schema_version") and "port"
+Mysql:
+
+```php
+// Optional options:
+// "charset"
+// "schema_table" (the default table name is "schema_version")
+// "port"
+
 $db = new Database([
     'driver' => 'mysql',
     'hostname' => 'localhost',
@@ -46,9 +56,15 @@ $db = new Database([
     'password' => '',
     'database' => 'my_db_name',
 ]);
+```
 
-// Postgres driver
-// Optional options: "schema_table" (the default table name is "schema_version") and "port"
+Postgres:
+
+```php
+// Optional options:
+// "schema_table" (the default table name is "schema_version")
+// "port"
+
 $db = new Database([
     'driver' => 'postgres',
     'hostname' => 'localhost',
@@ -467,10 +483,8 @@ function version_2($pdo)
 
 #### Run schema update automatically
 
-- The method "check()" executes all migrations until to reach the correct version number.
-- If we are already on the last version nothing will happen.
-- The schema version for the driver Sqlite is stored inside a variable (PRAGMA user_version)
-- You can use that with a dependency injection controller.
+- The method `check()` execute all migrations until the version specified
+- If an error occurs, the transaction is rollbacked
 
 Example:
 

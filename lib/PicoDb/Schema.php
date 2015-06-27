@@ -68,10 +68,10 @@ class Schema
 
                 if (function_exists($function_name)) {
                     call_user_func($function_name, $this->db->getConnection());
-                    $this->db->getDriver()->setSchemaVersion($i);
                 }
             }
 
+            $this->db->getDriver()->setSchemaVersion($i - 1);
             $this->db->closeTransaction();
         }
         catch (PDOException $e) {
