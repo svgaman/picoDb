@@ -158,6 +158,7 @@ abstract class Base
      * @param  string  $keyColumn
      * @param  string  $valueColumn
      * @param  array   $dictionnary
+     * @return bool    False on failure
      */
     public function upsert($table, $keyColumn, $valueColumn, array $dictionnary)
     {

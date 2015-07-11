@@ -528,6 +528,7 @@ class Table
      * Custom select
      *
      * @access public
+     * @param  string $select
      * @return Table
      */
     public function select($select)
