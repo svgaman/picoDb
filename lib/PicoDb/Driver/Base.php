@@ -157,15 +157,15 @@ abstract class Base
      * @param  string  $table
      * @param  string  $keyColumn
      * @param  string  $valueColumn
-     * @param  array   $dictionnary
+     * @param  array   $dictionary
      * @return bool    False on failure
      */
-    public function upsert($table, $keyColumn, $valueColumn, array $dictionnary)
+    public function upsert($table, $keyColumn, $valueColumn, array $dictionary)
     {
         try {
             $this->pdo->beginTransaction();
 
-            foreach ($dictionnary as $key => $value) {
+            foreach ($dictionary as $key => $value) {
 
                 $rq = $this->pdo->prepare('SELECT 1 FROM '.$this->escape($table).' WHERE '.$this->escape($keyColumn).'=?');
                 $rq->execute(array($key));
