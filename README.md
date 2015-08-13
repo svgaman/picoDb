@@ -245,6 +245,14 @@ $db->table('mytable')->count();
 $db->table('mytable')->sum('columnB');
 ```
 
+### Sum column values during update
+
+Add the value 42 to the existing value of the column "mycolumn":
+
+```php
+$db->table('mytable')->sumColumn('mycolumn', 42)->update();
+```
+
 ### Exists
 
 Returns true if a record exists otherwise false.

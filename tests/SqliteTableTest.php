@@ -224,6 +224,19 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $this->db->table('foobar')->count());
     }
 
+    public function testSumColumn()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (b REAL, c REAL)'));
+        $this->assertTrue($this->db->table('foobar')->insert(array('b' => 2, 'c' => 3.3)));
+
+        $this->assertTrue($this->db->table('foobar')->sumColumn('b', 2.5)->sumColumn('c', 3)->update());
+
+        $this->assertEquals(
+            array('b' => 4.5, 'c' => 6.3),
+            $this->db->table('foobar')->findOne()
+        );
+    }
+
     public function testCallback()
     {
         $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a TEXT)'));
