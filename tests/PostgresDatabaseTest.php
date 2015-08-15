@@ -10,7 +10,7 @@ class PostgresDatabaseTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->db = new Database(array('driver' => 'postgres', 'hostname' => 'localhost', 'username' => 'postgres', 'password' => 'postgres', 'database' => 'picodb'));
+        $this->db = new Database(array('driver' => 'postgres', 'hostname' => 'localhost', 'username' => 'postgres', 'password' => '', 'database' => 'picodb'));
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS foobar');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS schema_version');
         $this->db->logQueries = true;
