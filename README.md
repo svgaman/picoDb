@@ -23,7 +23,7 @@ Requirements
 
 - PHP >= 5.3
 - PDO extension
-- Sqlite or Mysql or Postgresql
+- Sqlite, Mssql, Mysql, or Postgresql
 
 Author
 ------

@@ -97,9 +97,9 @@ class Mssql extends Base {
    * @return string
    */
   public function getOperator($operator) {
-    /*if ($operator === 'LIKE' || $operator === 'ILIKE') {
+    if ($operator === 'LIKE' || $operator === 'ILIKE') {
       return 'LIKE';
-    }*/
+    }
 
     return '';
   }
