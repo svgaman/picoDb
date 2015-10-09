@@ -11,7 +11,7 @@ Features
 --------
 
 - Easy to use, easy to hack, fast and very lightweight
-- Supported drivers: Sqlite, Mysql, Postgresql
+- Supported drivers: Sqlite, Mssql, Mysql, Postgresql
 - Requires only PDO
 - Use prepared statements
 - Handle schema migrations
@@ -51,6 +51,21 @@ $db = new Database(['driver' => 'sqlite', 'filename' => ':memory:']);
 ```
 
 The Sqlite driver enable foreign keys by default.
+
+Mssql:
+
+```php
+// Optional attributes:
+// "schema_table" (the default table name is "schema_version")
+
+$db = new Database([
+    'driver' => 'mssql',
+    'hostname' => 'localhost',
+    'username' => 'root',
+    'password' => '',
+    'database' => 'my_db_name',
+]);
+```
 
 Mysql:
 
