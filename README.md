@@ -306,6 +306,17 @@ $db->table('mytable')
        ->findAll();
 ```
 
+### IN condition with subquery
+
+```php
+$subquery = $db->table('another_table')->columns('column2')->eq('column3', 'value3');
+
+$db->table('mytable')
+       ->columns('column_5')
+       ->inSubquery('column1', $subquery)
+       ->findAll();
+```
+
 ### Like condition
 
 Case-sensitive (only Mysql and Postgres):

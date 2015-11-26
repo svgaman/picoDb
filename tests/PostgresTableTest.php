@@ -109,6 +109,19 @@ class PostgresTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $table->condition->getValues());
     }
 
+    public function testConditionInSubquery()
+    {
+        $table = $this->db->table('test');
+        $subquery = $this->db->table('test2')->columns('c')->eq('d', 'e');
+
+        $this->assertEquals(
+            'SELECT * FROM "test"   WHERE "a" IN (SELECT "c" FROM "test2"   WHERE "d" = ?)',
+            $table->inSubquery('a', $subquery)->buildSelectQuery()
+        );
+
+        $this->assertEquals(array('e'), $table->condition->getValues());
+    }
+
     public function testConditionNotIn()
     {
         $table = $this->db->table('test');
@@ -120,6 +133,19 @@ class PostgresTableTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('SELECT * FROM "test"', $table->notin('a', array())->buildSelectQuery());
         $this->assertEquals(array(), $table->condition->getValues());
+    }
+
+    public function testConditionNotInSubquery()
+    {
+        $table = $this->db->table('test');
+        $subquery = $this->db->table('test2')->columns('c')->eq('d', 'e');
+
+        $this->assertEquals(
+            'SELECT * FROM "test"   WHERE "a" NOT IN (SELECT "c" FROM "test2"   WHERE "d" = ?)',
+            $table->notInSubquery('a', $subquery)->buildSelectQuery()
+        );
+
+        $this->assertEquals(array('e'), $table->condition->getValues());
     }
 
     public function testConditionLike()
