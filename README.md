@@ -268,6 +268,14 @@ Add the value 42 to the existing value of the column "mycolumn":
 $db->table('mytable')->sumColumn('mycolumn', 42)->update();
 ```
 
+### Increment column
+
+Increment a column value in a single query:
+
+```php
+$db->table('mytable')->eq('another_column', 42)->increment('my_column', 2);
+```
+
 ### Exists
 
 Returns true if a record exists otherwise false.

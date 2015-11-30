@@ -276,6 +276,14 @@ class PostgresTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(7, $this->db->table('foobar')->sum('a'));
     }
 
+    public function testIncrement()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a INTEGER DEFAULT 0, b INTEGER DEFAULT 0)'));
+        $this->assertTrue($this->db->table('foobar')->insert(array('a' => 2, 'b' => 5)));
+        $this->assertTrue($this->db->table('foobar')->eq('b', 5)->increment('a', 3));
+        $this->assertEquals(5, $this->db->table('foobar')->findOneColumn('a'));
+    }
+
     public function testLeftJoin()
     {
         $this->assertNotFalse($this->db->execute('CREATE TABLE test1 (a INTEGER NOT NULL, foreign_key INTEGER NOT NULL)'));
