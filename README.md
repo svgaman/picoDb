@@ -276,6 +276,14 @@ Increment a column value in a single query:
 $db->table('mytable')->eq('another_column', 42)->increment('my_column', 2);
 ```
 
+### Decrement column
+
+Decrement a column value in a single query:
+
+```php
+$db->table('mytable')->eq('another_column', 42)->decrement('my_column', 1);
+```
+
 ### Exists
 
 Returns true if a record exists otherwise false.
