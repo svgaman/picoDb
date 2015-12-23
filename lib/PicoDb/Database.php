@@ -58,6 +58,14 @@ class Database
     public $logQueries = false;
 
     /**
+     * Run explain command on each query
+     *
+     * @access public
+     * @var boolean
+     */
+    public $explain = false;
+
+    /**
      * Number of SQL queries executed
      *
      * @access public
@@ -143,11 +151,29 @@ class Database
      * Add a log message
      *
      * @access public
-     * @param  string    $message   Message
+     * @param  mixed $message
+     * @return Database
      */
     public function setLogMessage($message)
     {
-        $this->logs[] = $message;
+        $this->logs[] = is_array($message) ? var_export($message, true) : $message;
+        return $this;
+    }
+
+    /**
+     * Add many log messages
+     *
+     * @access public
+     * @param  array $messages
+     * @return Database
+     */
+    public function setLogMessages(array $messages)
+    {
+        foreach ($messages as $message) {
+            $this->setLogMessage($message);
+        }
+
+        return $this;
     }
 
     /**
@@ -270,6 +296,10 @@ class Database
 
             if ($this->stopwatch) {
                 $this->setLogMessage('DURATION='.(microtime(true) - $start));
+            }
+
+            if ($this->explain) {
+                $this->setLogMessages($this->getDriver()->explain($sql, $values));
             }
 
             $this->nbQueries++;
