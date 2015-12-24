@@ -50,6 +50,14 @@ class Database
     public $stopwatch = false;
 
     /**
+     * Execution time of all queries
+     *
+     * @access public
+     * @var float
+     */
+    public $executionTime = 0;
+
+    /**
      * Flag to log generated SQL queries
      *
      * @access public
@@ -295,7 +303,9 @@ class Database
             $rq->execute($values);
 
             if ($this->stopwatch) {
-                $this->setLogMessage('DURATION='.(microtime(true) - $start));
+                $duration = microtime(true) - $start;
+                $this->executionTime += $duration;
+                $this->setLogMessage('QUERY_DURATION='.$duration.' ALL_QUERIES_DURATION='.$this->executionTime);
             }
 
             if ($this->explain) {
