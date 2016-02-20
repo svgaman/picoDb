@@ -167,12 +167,38 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(5), $table->condition->getValues());
     }
 
+    public function testConditionGreaterThanInSubquery()
+    {
+        $table = $this->db->table('test');
+        $subquery = $this->db->table('test2')->columns('c')->eq('d', 'e');
+
+        $this->assertEquals(
+            'SELECT * FROM "test"   WHERE "a" > (SELECT "c" FROM "test2"   WHERE "d" = ?)',
+            $table->gtSubquery('a', $subquery)->buildSelectQuery()
+        );
+
+        $this->assertEquals(array('e'), $table->condition->getValues());
+    }
+
     public function testConditionGreaterThanOrEqual()
     {
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" >= ?', $table->gte('a', 5)->buildSelectQuery());
         $this->assertEquals(array(5), $table->condition->getValues());
+    }
+
+    public function testConditionGreaterThanEqualInSubquery()
+    {
+        $table = $this->db->table('test');
+        $subquery = $this->db->table('test2')->columns('c')->eq('d', 'e');
+
+        $this->assertEquals(
+            'SELECT * FROM "test"   WHERE "a" >= (SELECT "c" FROM "test2"   WHERE "d" = ?)',
+            $table->gteSubquery('a', $subquery)->buildSelectQuery()
+        );
+
+        $this->assertEquals(array('e'), $table->condition->getValues());
     }
 
     public function testConditionLowerThan()
@@ -183,12 +209,38 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(5), $table->condition->getValues());
     }
 
+    public function testConditionLowerThanInSubquery()
+    {
+        $table = $this->db->table('test');
+        $subquery = $this->db->table('test2')->columns('c')->eq('d', 'e');
+
+        $this->assertEquals(
+            'SELECT * FROM "test"   WHERE "a" < (SELECT "c" FROM "test2"   WHERE "d" = ?)',
+            $table->ltSubquery('a', $subquery)->buildSelectQuery()
+        );
+
+        $this->assertEquals(array('e'), $table->condition->getValues());
+    }
+
     public function testConditionLowerThanOrEqual()
     {
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" <= ?', $table->lte('a', 5)->buildSelectQuery());
         $this->assertEquals(array(5), $table->condition->getValues());
+    }
+
+    public function testConditionLowerThanEqualInSubquery()
+    {
+        $table = $this->db->table('test');
+        $subquery = $this->db->table('test2')->columns('c')->eq('d', 'e');
+
+        $this->assertEquals(
+            'SELECT * FROM "test"   WHERE "a" <= (SELECT "c" FROM "test2"   WHERE "d" = ?)',
+            $table->lteSubquery('a', $subquery)->buildSelectQuery()
+        );
+
+        $this->assertEquals(array('e'), $table->condition->getValues());
     }
 
     public function testConditionIsNull()
