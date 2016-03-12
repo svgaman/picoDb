@@ -188,7 +188,7 @@ class Postgres extends Base
      * @access public
      * @return array
      */
-    public function version()
+    public function getDatabaseVersion()
     {
         return $this->getConnection()->query('SHOW server_version')->fetchColumn();
     }

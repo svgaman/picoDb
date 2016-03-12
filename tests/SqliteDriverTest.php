@@ -60,8 +60,8 @@ class SqliteDriverTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('"foobar"', $this->driver->escape('foobar'));
     }
 
-    public function testVersion()
+    public function testDatabaseVersion()
     {
-        $this->assertStringStartsWith('3.', $this->driver->version());
+        $this->assertStringStartsWith('3.', $this->driver->getDatabaseVersion());
     }
 }

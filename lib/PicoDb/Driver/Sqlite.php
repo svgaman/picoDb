@@ -185,7 +185,7 @@ class Sqlite extends Base
      * @access public
      * @return array
      */
-    public function version()
+    public function getDatabaseVersion()
     {
         return $this->getConnection()->query('SELECT sqlite_version()')->fetchColumn();
     }

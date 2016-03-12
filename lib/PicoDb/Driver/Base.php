@@ -226,7 +226,7 @@ abstract class Base
      * @access public
      * @return array
      */
-    public function version()
+    public function getDatabaseVersion()
     {
         return $this->getConnection()->query('SELECT VERSION()')->fetchColumn();
     }
