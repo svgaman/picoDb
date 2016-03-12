@@ -36,6 +36,7 @@ Thumbs.db
 *.swp
 *~
 *.lock
+.idea
 
 # App specific #
 ################

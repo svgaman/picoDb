@@ -67,4 +67,9 @@ class PostgresDriverTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals('"foobar"', $this->driver->escape('foobar'));
     }
+
+    public function testVersion()
+    {
+        $this->assertStringStartsWith('9.', $this->driver->version());
+    }
 }

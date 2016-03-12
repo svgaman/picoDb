@@ -62,4 +62,9 @@ class MysqlDriverTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals('`foobar`', $this->driver->escape('foobar'));
     }
+
+    public function testVersion()
+    {
+        $this->assertStringStartsWith('5.', $this->driver->version());
+    }
 }
