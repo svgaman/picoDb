@@ -25,10 +25,13 @@ class MysqlSchemaTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals(0, $this->db->getDriver()->getSchemaVersion());
         $this->assertFalse($this->db->schema()->check(3));
-        $this->assertEquals(0, $this->db->getDriver()->getSchemaVersion());
+        $this->assertEquals(2, $this->db->getDriver()->getSchemaVersion());
 
         $logs = $this->db->getLogMessages();
         $this->assertNotEmpty($logs);
-        $this->assertStringStartsWith('\Schema\version_3 => SQLSTATE[42000]: Syntax error or access violation', $logs[0]);
+        $this->assertEquals('Running migration \Schema\version_1', $logs[0]);
+        $this->assertEquals('Running migration \Schema\version_2', $logs[1]);
+        $this->assertEquals('Running migration \Schema\version_3', $logs[2]);
+        $this->assertStringStartsWith('SQLSTATE[42000]: Syntax error or access violation', $logs[3]);
     }
 }
