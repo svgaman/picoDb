@@ -395,7 +395,7 @@ class Database
     public function cancelTransaction()
     {
         if ($this->getConnection()->inTransaction()) {
-            $this->getConnection()->rollback();
+            $this->getConnection()->rollBack();
         }
     }
 
