@@ -427,10 +427,17 @@ class Database
      * Get a schema instance
      *
      * @access public
+     * @param  string $namespace
      * @return Schema
      */
-    public function schema()
+    public function schema($namespace = null)
     {
-        return new Schema($this);
+        $schema = new Schema($this);
+
+        if ($namespace !== null) {
+            $schema->setNamespace($namespace);
+        }
+
+        return $schema;
     }
 }

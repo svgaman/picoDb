@@ -1,11 +1,14 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use PicoDb\Driver\Mysql;
 
 class MysqlDriverTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PicoDb\Driver\Mysql
+     */
     private $driver;
 
     public function setUp()

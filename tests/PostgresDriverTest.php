@@ -1,11 +1,14 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use PicoDb\Driver\Postgres;
 
 class PostgresDriverTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PicoDb\Driver\Postgres
+     */
     private $driver;
 
     public function setUp()

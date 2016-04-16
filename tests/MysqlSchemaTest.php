@@ -1,10 +1,14 @@
 <?php
 
-require_once 'vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/SchemaFixture.php';
+require_once __DIR__.'/AlternativeSchemaFixture.php';
 
 class MysqlSchemaTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var PicoDb\Database
+     */
     private $db;
 
     public function setUp()
@@ -19,6 +23,7 @@ class MysqlSchemaTest extends PHPUnit_Framework_TestCase
     {
         $this->assertTrue($this->db->schema()->check(2));
         $this->assertEquals(2, $this->db->getDriver()->getSchemaVersion());
+        $this->assertEquals('\Schema', $this->db->schema()->getNamespace());
     }
 
     public function testFailedMigrations()
@@ -33,5 +38,12 @@ class MysqlSchemaTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Running migration \Schema\version_2', $logs[1]);
         $this->assertEquals('Running migration \Schema\version_3', $logs[2]);
         $this->assertStringStartsWith('SQLSTATE[42000]: Syntax error or access violation', $logs[3]);
+    }
+
+    public function testAlternativeSchemaNamespace()
+    {
+        $this->assertEquals('\AlternativeSchema', $this->db->schema('\AlternativeSchema')->getNamespace());
+        $this->assertTrue($this->db->schema('\AlternativeSchema')->check(2));
+        $this->assertEquals(2, $this->db->getDriver()->getSchemaVersion());
     }
 }
