@@ -5,15 +5,16 @@ namespace PicoDb;
 use Closure;
 use PDOException;
 use LogicException;
-use PicoDb\Driver\Sqlite;
 use PicoDb\Driver\Mssql;
+use PicoDb\Driver\Sqlite;
 use PicoDb\Driver\Mysql;
 use PicoDb\Driver\Postgres;
 
 /**
  * Database
  *
- * @author   Frederic Guillot
+ * @package PicoDb
+ * @author  Frederic Guillot
  */
 class Database
 {
@@ -85,30 +86,11 @@ class Database
      * Initialize the driver
      *
      * @access public
-     * @param  array     $settings    Connection settings
+     * @param  array   $settings
      */
-    public function __construct(array $settings)
+    public function __construct(array $settings = array())
     {
-        if (! isset($settings['driver'])) {
-            throw new LogicException('You must define a database driver');
-        }
-
-        switch ($settings['driver']) {
-            case 'sqlite':
-                $this->driver = new Sqlite($settings);
-                break;
-            case 'mssql':
-                $this->driver = new Mssql($settings);
-                break;
-            case 'mysql':
-                $this->driver = new Mysql($settings);
-                break;
-            case 'postgres':
-                $this->driver = new Postgres($settings);
-                break;
-            default:
-                throw new LogicException('This database driver is not supported');
-        }
+        $this->driver = DriverFactory::getDriver($settings);
     }
 
     /**
@@ -210,7 +192,7 @@ class Database
      * Get the Driver instance
      *
      * @access public
-     * @return Sqlite|Postgres|Mysql
+     * @return Mssql|Sqlite|Postgres|Mysql
      */
     public function getDriver()
     {

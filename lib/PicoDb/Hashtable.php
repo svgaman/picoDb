@@ -5,10 +5,11 @@ namespace PicoDb;
 use PDO;
 
 /**
- * Hashtable (key/value)
+ * HashTable (key/value)
  *
- * @author   Frederic Guillot
- * @author   Mathias Kresin
+ * @package PicoDb
+ * @author  Frederic Guillot
+ * @author  Mathias Kresin
  */
 class Hashtable extends Table
 {

@@ -9,7 +9,8 @@ use PDOException;
 /**
  * Base Driver class
  *
- * @author   Frederic Guillot
+ * @package PicoDb
+ * @author  Frederic Guillot
  */
 abstract class Base
 {

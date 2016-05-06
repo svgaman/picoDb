@@ -8,7 +8,8 @@ use Closure;
 /**
  * Table
  *
- * @author   Frederic Guillot
+ * @package PicoDb
+ * @author  Frederic Guillot
  *
  * @method   Table   addCondition($sql)
  * @method   Table   beginOr()

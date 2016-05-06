@@ -5,7 +5,8 @@ namespace PicoDb;
 /**
  * Handle SQL conditions
  *
- * @author   Frederic Guillot
+ * @package PicoDb
+ * @author  Frederic Guillot
  */
 class Condition
 {

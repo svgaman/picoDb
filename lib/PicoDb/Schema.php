@@ -7,7 +7,8 @@ use PDOException;
 /**
  * Schema migration class
  *
- * @author   Frederic Guillot
+ * @package PicoDb
+ * @author  Frederic Guillot
  */
 class Schema
 {

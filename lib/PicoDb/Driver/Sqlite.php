@@ -8,7 +8,8 @@ use PDOException;
 /**
  * Sqlite Driver
  *
- * @author   Frederic Guillot
+ * @package PicoDb
+ * @author  Frederic Guillot
  */
 class Sqlite extends Base
 {

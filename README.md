@@ -40,7 +40,7 @@ composer require fguillot/picodb @stable
 
 ### Database connection
 
-Sqlite:
+#### Sqlite:
 
 ```php
 use PicoDb\Database;
@@ -51,7 +51,7 @@ $db = new Database(['driver' => 'sqlite', 'filename' => ':memory:']);
 
 The Sqlite driver enable foreign keys by default.
 
-Mssql:
+#### Microsoft SQL server:
 
 ```php
 // Optional attributes:
@@ -70,7 +70,7 @@ Optional attributes:
 
 - schema_table
 
-Mysql:
+#### Mysql:
 
 ```php
 $db = new Database([
@@ -94,7 +94,7 @@ Optional attributes:
 - ssl_cert
 - ssl_key
 
-Postgres:
+#### Postgres:
 
 ```php
 $db = new Database([
@@ -110,6 +110,32 @@ Optional attributes:
 
 - port
 - schema_table
+
+#### Connecting from an environment variable:
+
+Let's say you have defined an environment variable:
+
+```bash
+export DATABASE_URL=postgres://user:pass@hostname:6212/db
+```
+
+PicoDb can parse automatically this URL for you:
+
+```php
+use PicoDb\UrlParser;
+use PicoDb\Database;
+
+$db = new Database(UrlParser::getInstance()->getSettings());
+```
+
+#### Connecting from a URL
+
+```php
+use PicoDb\UrlParser;
+use PicoDb\Database;
+
+$db = new Database(UrlParser::getInstance()->getSettings('postgres://user:pass@hostname:6212/db'));
+```
 
 ### Execute any SQL query
 
