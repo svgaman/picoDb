@@ -19,7 +19,7 @@ abstract class Base
      * @access protected
      * @var array
      */
-    protected $requiredAtttributes = array();
+    protected $requiredAttributes = array();
 
     /**
      * PDO connection
@@ -119,7 +119,7 @@ abstract class Base
      */
     public function __construct(array $settings)
     {
-        foreach ($this->requiredAtttributes as $attribute) {
+        foreach ($this->requiredAttributes as $attribute) {
             if (! isset($settings[$attribute])) {
                 throw new LogicException('This configuration parameter is missing: "'.$attribute.'"');
             }

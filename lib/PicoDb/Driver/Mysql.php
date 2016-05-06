@@ -18,7 +18,7 @@ class Mysql extends Base
      * @access protected
      * @var array
      */
-    protected $requiredAtttributes = array(
+    protected $requiredAttributes = array(
         'hostname',
         'username',
         'password',
