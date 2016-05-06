@@ -4,7 +4,6 @@ PicoDb
 PicoDb is a minimalist database query builder for PHP.
 
 [![Build Status](https://travis-ci.org/fguillot/picoDb.svg?branch=master)](https://travis-ci.org/fguillot/picoDb)
-
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fguillot/picoDb/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fguillot/picoDb/?branch=master)
 
 Features
@@ -23,7 +22,7 @@ Requirements
 
 - PHP >= 5.3
 - PDO extension
-- Sqlite, Mssql, Mysql, or Postgresql
+- Sqlite, Mssql, Mysql or Postgresql
 
 Author
 ------
@@ -67,30 +66,37 @@ $db = new Database([
 ]);
 ```
 
+Optional attributes:
+
+- schema_table
+
 Mysql:
 
 ```php
-// Optional attributes:
-// "charset"
-// "schema_table" (the default table name is "schema_version")
-// "port"
-
 $db = new Database([
     'driver' => 'mysql',
     'hostname' => 'localhost',
     'username' => 'root',
     'password' => '',
     'database' => 'my_db_name',
+    'ssl_key' => '/path/to/client-key.pem',
+    'ssl_cert' => '/path/to/client-cert.pem',
+    'ssl_ca' => '/path/to/ca-cert.pem',
 ]);
 ```
+
+Optional attributes:
+
+- charset
+- schema_table
+- port
+- ssl_key
+- ssl_cert
+- ssl_key
 
 Postgres:
 
 ```php
-// Optional attributes:
-// "schema_table" (the default table name is "schema_version")
-// "port"
-
 $db = new Database([
     'driver' => 'postgres',
     'hostname' => 'localhost',
@@ -99,6 +105,11 @@ $db = new Database([
     'database' => 'my_db_name',
 ]);
 ```
+
+Optional attributes:
+
+- port
+- schema_table
 
 ### Execute any SQL query
 

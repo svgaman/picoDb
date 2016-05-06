@@ -41,6 +41,27 @@ class Mysql extends Base
      */
     public function createConnection(array $settings)
     {
+        $this->pdo = new PDO(
+            $this->buildDsn($settings),
+            $settings['username'],
+            $settings['password'],
+            $this->buildOptions($settings)
+        );
+
+        if (isset($settings['schema_table'])) {
+            $this->schemaTable = $settings['schema_table'];
+        }
+    }
+
+    /**
+     * Build connection DSN
+     *
+     * @access protected
+     * @param  array $settings
+     * @return string
+     */
+    protected function buildDsn(array $settings)
+    {
         $charset = empty($settings['charset']) ? 'utf8' : $settings['charset'];
         $dsn = 'mysql:host='.$settings['hostname'].';dbname='.$settings['database'].';charset='.$charset;
 
@@ -48,15 +69,35 @@ class Mysql extends Base
             $dsn .= ';port='.$settings['port'];
         }
 
+        return $dsn;
+    }
+
+    /**
+     * Build connection options
+     *
+     * @access protected
+     * @param  array $settings
+     * @return array
+     */
+    protected function buildOptions(array $settings)
+    {
         $options = array(
             PDO::MYSQL_ATTR_INIT_COMMAND => 'SET sql_mode = STRICT_ALL_TABLES',
         );
 
-        $this->pdo = new PDO($dsn, $settings['username'], $settings['password'], $options);
-
-        if (isset($settings['schema_table'])) {
-            $this->schemaTable = $settings['schema_table'];
+        if (! empty($settings['ssl_key'])) {
+            $options[PDO::MYSQL_ATTR_SSL_KEY] = $settings['ssl_key'];
         }
+
+        if (! empty($settings['ssl_cert'])) {
+            $options[PDO::MYSQL_ATTR_SSL_CERT] = $settings['ssl_cert'];
+        }
+
+        if (! empty($settings['ssl_ca'])) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $settings['ssl_ca'];
+        }
+
+        return $options;
     }
 
     /**
