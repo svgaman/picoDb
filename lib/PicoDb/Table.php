@@ -16,13 +16,19 @@ use Closure;
  * @method   Table   eq($column, $value)
  * @method   Table   neq($column, $value)
  * @method   Table   in($column, array $values)
- * @method   Table   notin($column, array $values)
+ * @method   Table   inSubquery($column, Table $subquery)
+ * @method   Table   notIn($column, array $values)
+ * @method   Table   notInSubquery($column, Table $subquery)
  * @method   Table   like($column, $value)
  * @method   Table   ilike($column, $value)
  * @method   Table   gt($column, $value)
+ * @method   Table   gtSubquery($column, Table $subquery)
  * @method   Table   lt($column, $value)
+ * @method   Table   ltSubquery($column, Table $subquery)
  * @method   Table   gte($column, $value)
+ * @method   Table   gteSubquery($column, Table $subquery)
  * @method   Table   lte($column, $value)
+ * @method   Table   lteSubquery($column, Table $subquery)
  * @method   Table   isNull($column)
  * @method   Table   notNull($column)
  */
@@ -486,7 +492,7 @@ class Table
 
         return $this;
     }
-    
+
     /**
      * Inner join
      *

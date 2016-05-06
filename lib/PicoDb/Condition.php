@@ -194,7 +194,7 @@ class Condition
      * @param  string   $column
      * @param  array    $values
      */
-    public function notin($column, array $values)
+    public function notIn($column, array $values)
     {
         if (! empty($values)) {
             $this->addCondition($this->db->escapeIdentifier($column).' NOT IN ('.implode(', ', array_fill(0, count($values), '?')).')');
