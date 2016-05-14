@@ -85,7 +85,7 @@ class Hashtable extends Table
         // setup to select columns in case that there are more than two
         $this->columns($this->keyColumn, $this->valueColumn);
 
-        $rq = $this->db->execute($this->buildSelectQuery(), $this->condition->getValues());
+        $rq = $this->db->execute($this->buildSelectQuery(), $this->conditionBuilder->getValues());
         $rows = $rq->fetchAll(PDO::FETCH_NUM);
 
         foreach ($rows as $row) {

@@ -17,7 +17,6 @@ class MysqlDatabaseTest extends PHPUnit_Framework_TestCase
         $this->db->getConnection()->exec('CREATE DATABASE IF NOT EXISTS `picodb`');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS foobar');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS schema_version');
-        $this->db->logQueries = true;
     }
 
     public function testEscapeIdentifer()

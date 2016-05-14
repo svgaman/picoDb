@@ -20,8 +20,8 @@ class DriverFactory
      * Get database driver from settings or environment URL
      *
      * @access public
+     * @param  array $settings
      * @return Mssql|Mysql|Postgres|Sqlite
-     * @throws LogicException
      */
     public static function getDriver(array $settings)
     {

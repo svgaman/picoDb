@@ -1,14 +1,17 @@
 <?php
 
-namespace PicoDb;
+namespace PicoDb\Builder;
+
+use PicoDb\Database;
+use PicoDb\Table;
 
 /**
  * Handle SQL conditions
  *
- * @package PicoDb
+ * @package PicoDb\Builder
  * @author  Frederic Guillot
  */
-class Condition
+class ConditionBuilder
 {
     /**
      * Database instance
@@ -185,7 +188,7 @@ class Condition
     public function inSubquery($column, Table $subquery)
     {
         $this->addCondition($this->db->escapeIdentifier($column).' IN ('.$subquery->buildSelectQuery().')');
-        $this->values = array_merge($this->values, $subquery->condition->getValues());
+        $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
 
     /**
@@ -213,7 +216,7 @@ class Condition
     public function notInSubquery($column, Table $subquery)
     {
         $this->addCondition($this->db->escapeIdentifier($column).' NOT IN ('.$subquery->buildSelectQuery().')');
-        $this->values = array_merge($this->values, $subquery->condition->getValues());
+        $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
 
     /**
@@ -265,7 +268,7 @@ class Condition
     public function gtSubquery($column, Table $subquery)
     {
         $this->addCondition($this->db->escapeIdentifier($column).' > ('.$subquery->buildSelectQuery().')');
-        $this->values = array_merge($this->values, $subquery->condition->getValues());
+        $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
 
     /**
@@ -291,7 +294,7 @@ class Condition
     public function ltSubquery($column, Table $subquery)
     {
         $this->addCondition($this->db->escapeIdentifier($column).' < ('.$subquery->buildSelectQuery().')');
-        $this->values = array_merge($this->values, $subquery->condition->getValues());
+        $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
 
     /**
@@ -317,7 +320,7 @@ class Condition
     public function gteSubquery($column, Table $subquery)
     {
         $this->addCondition($this->db->escapeIdentifier($column).' >= ('.$subquery->buildSelectQuery().')');
-        $this->values = array_merge($this->values, $subquery->condition->getValues());
+        $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
 
     /**
@@ -343,7 +346,7 @@ class Condition
     public function lteSubquery($column, Table $subquery)
     {
         $this->addCondition($this->db->escapeIdentifier($column).' <= ('.$subquery->buildSelectQuery().')');
-        $this->values = array_merge($this->values, $subquery->condition->getValues());
+        $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
 
     /**

@@ -14,7 +14,6 @@ class SqliteDatabaseTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->db = new Database(array('driver' => 'sqlite', 'filename' => ':memory:'));
-        $this->db->logQueries = true;
     }
 
     public function testEscapeIdentifer()

@@ -8,7 +8,7 @@ use PDOException;
 /**
  * Mysql Driver
  *
- * @package PicoDb
+ * @package PicoDb\Driver
  * @author  Frederic Guillot
  */
 class Mysql extends Base

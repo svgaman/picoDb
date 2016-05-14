@@ -20,7 +20,6 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS test2');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS foobar');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS schema_version');
-        $this->db->logQueries = true;
     }
 
     public function testSelect()
@@ -89,7 +88,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` = ? AND `b` = ?', $table->eq('a', 2)->eq('b', 'foobar')->buildSelectQuery());
-        $this->assertEquals(array(2, 'foobar'), $table->condition->getValues());
+        $this->assertEquals(array(2, 'foobar'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionNotEqual()
@@ -97,7 +96,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` != ?', $table->neq('a', 2)->buildSelectQuery());
-        $this->assertEquals(array(2), $table->condition->getValues());
+        $this->assertEquals(array(2), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionIn()
@@ -105,12 +104,12 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` IN (?, ?)', $table->in('a', array('b', 'c'))->buildSelectQuery());
-        $this->assertEquals(array('b', 'c'), $table->condition->getValues());
+        $this->assertEquals(array('b', 'c'), $table->getConditionBuilder()->getValues());
 
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`', $table->in('a', array())->buildSelectQuery());
-        $this->assertEquals(array(), $table->condition->getValues());
+        $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionInSubquery()
@@ -123,7 +122,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
             $table->inSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionNotIn()
@@ -131,12 +130,12 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` NOT IN (?, ?)', $table->notin('a', array('b', 'c'))->buildSelectQuery());
-        $this->assertEquals(array('b', 'c'), $table->condition->getValues());
+        $this->assertEquals(array('b', 'c'), $table->getConditionBuilder()->getValues());
 
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`', $table->notin('a', array())->buildSelectQuery());
-        $this->assertEquals(array(), $table->condition->getValues());
+        $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionNotInSubquery()
@@ -149,7 +148,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
             $table->notInSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLike()
@@ -157,7 +156,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` LIKE BINARY ?', $table->like('a', '%foobar%')->buildSelectQuery());
-        $this->assertEquals(array('%foobar%'), $table->condition->getValues());
+        $this->assertEquals(array('%foobar%'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionILike()
@@ -165,7 +164,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` LIKE ?', $table->ilike('a', '%foobar%')->buildSelectQuery());
-        $this->assertEquals(array('%foobar%'), $table->condition->getValues());
+        $this->assertEquals(array('%foobar%'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionGreaterThan()
@@ -173,7 +172,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` > ?', $table->gt('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionGreaterThanOrEqual()
@@ -181,7 +180,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` >= ?', $table->gte('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLowerThan()
@@ -189,7 +188,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` < ?', $table->lt('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLowerThanOrEqual()
@@ -197,7 +196,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` <= ?', $table->lte('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionIsNull()
@@ -205,7 +204,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` IS NOT NULL', $table->notNull('a')->buildSelectQuery());
-        $this->assertEquals(array(), $table->condition->getValues());
+        $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
     public function testCustomCondition()
@@ -213,7 +212,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE a=c AND `b` = ?', $table->addCondition('a=c')->eq('b', 4)->buildSelectQuery());
-        $this->assertEquals(array(4), $table->condition->getValues());
+        $this->assertEquals(array(4), $table->getConditionBuilder()->getValues());
     }
 
     public function testOrConditions()
@@ -221,7 +220,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM `test`   WHERE `a` IS NOT NULL AND (`b` = ? OR `c` >= ?)', $table->notNull('a')->beginOr()->eq('b', 2)->gte('c', 5)->closeOr()->buildSelectQuery());
-        $this->assertEquals(array(2, 5), $table->condition->getValues());
+        $this->assertEquals(array(2, 5), $table->getConditionBuilder()->getValues());
     }
 
     public function testInsertUpdate()

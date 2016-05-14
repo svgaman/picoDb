@@ -7,7 +7,7 @@ use PDO;
 /**
  * Microsoft SQL Server Driver
  *
- * @package PicoDb
+ * @package PicoDb\Driver
  * @author  Algy Taylor <thomas.taylor@cmft.nhs.uk>
  */
 class Mssql extends Base

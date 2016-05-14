@@ -8,7 +8,7 @@ use PDOException;
 /**
  * Sqlite Driver
  *
- * @package PicoDb
+ * @package PicoDb\Driver
  * @author  Frederic Guillot
  */
 class Sqlite extends Base
@@ -162,7 +162,7 @@ class Sqlite extends Base
             return true;
         }
         catch (PDOException $e) {
-            $this->pdo->rollback();
+            $this->pdo->rollBack();
             return false;
         }
     }

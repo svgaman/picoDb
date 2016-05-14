@@ -9,7 +9,7 @@ use PDOException;
 /**
  * Base Driver class
  *
- * @package PicoDb
+ * @package PicoDb\Driver
  * @author  Frederic Guillot
  */
 abstract class Base
@@ -186,7 +186,7 @@ abstract class Base
             return true;
         }
         catch (PDOException $e) {
-            $this->pdo->rollback();
+            $this->pdo->rollBack();
             return false;
         }
     }

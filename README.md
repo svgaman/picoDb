@@ -464,19 +464,19 @@ $db->table('mytable')
 Log generated queries:
 
 ```php
-$db->logQueries = true;
+$db->getStatementHandler()->withLogging();
 ```
 
 Mesure each query time:
 
 ```php
-$db->stopwatch = true;
+$db->getStatementHandler()->withStopWatch();
 ```
 
 Get the number of queries executed:
 
 ```php
-echo $db->nbQueries;
+echo $db->getStatementHandler()->getNbQueries();
 ```
 
 Get log messages:
@@ -484,6 +484,40 @@ Get log messages:
 ```php
 print_r($db->getLogMessages());
 ```
+
+### Large objects (LOBs)
+
+Insert a file:
+
+```php
+$db->largeObject('my_table')->insertFromFile('blobColumn', '/path/to/file', array('id' => 'something'));
+```
+
+Insert from a stream:
+
+```php
+$db->largeObject('my_table')->insertFromStream('blobColumn', $fd, array('id' => 'something'));
+```
+
+Fetch a large object as a stream (Postgres only):
+
+```php
+$fd = $db->largeObject('my_table')->eq('id', 'something')->findOneColumnAsStream('blobColumn');
+```
+
+Fetch a large object as a string:
+
+```php
+echo $db->largeObject('my_table')->eq('id', 'something')->findOneColumnAsString('blobColumn');
+```
+
+Drivers:
+
+- Postgres
+    - Column type: `bytea`
+- Sqlite and Mysql
+    - Column type: `BLOB`
+    - PDO do no not supports the stream feature (returns a string instead)
 
 ### Hashtable (key/value store)
 

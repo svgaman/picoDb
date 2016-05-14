@@ -83,7 +83,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" = ? AND "b" = ?', $table->eq('a', 2)->eq('b', 'foobar')->buildSelectQuery());
-        $this->assertEquals(array(2, 'foobar'), $table->condition->getValues());
+        $this->assertEquals(array(2, 'foobar'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionNotEqual()
@@ -91,7 +91,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" != ?', $table->neq('a', 2)->buildSelectQuery());
-        $this->assertEquals(array(2), $table->condition->getValues());
+        $this->assertEquals(array(2), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionIn()
@@ -99,12 +99,12 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" IN (?, ?)', $table->in('a', array('b', 'c'))->buildSelectQuery());
-        $this->assertEquals(array('b', 'c'), $table->condition->getValues());
+        $this->assertEquals(array('b', 'c'), $table->getConditionBuilder()->getValues());
 
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"', $table->in('a', array())->buildSelectQuery());
-        $this->assertEquals(array(), $table->condition->getValues());
+        $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionInSubquery()
@@ -117,7 +117,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
             $table->inSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionNotIn()
@@ -125,12 +125,12 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" NOT IN (?, ?)', $table->notin('a', array('b', 'c'))->buildSelectQuery());
-        $this->assertEquals(array('b', 'c'), $table->condition->getValues());
+        $this->assertEquals(array('b', 'c'), $table->getConditionBuilder()->getValues());
 
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"', $table->notin('a', array())->buildSelectQuery());
-        $this->assertEquals(array(), $table->condition->getValues());
+        $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionNotInSubquery()
@@ -143,7 +143,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
             $table->notInSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLike()
@@ -151,7 +151,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" LIKE ?', $table->like('a', '%foobar%')->buildSelectQuery());
-        $this->assertEquals(array('%foobar%'), $table->condition->getValues());
+        $this->assertEquals(array('%foobar%'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionILike()
@@ -159,7 +159,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" LIKE ?', $table->ilike('a', '%foobar%')->buildSelectQuery());
-        $this->assertEquals(array('%foobar%'), $table->condition->getValues());
+        $this->assertEquals(array('%foobar%'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionGreaterThan()
@@ -167,7 +167,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" > ?', $table->gt('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionGreaterThanInSubquery()
@@ -180,7 +180,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
             $table->gtSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionGreaterThanOrEqual()
@@ -188,7 +188,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" >= ?', $table->gte('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionGreaterThanEqualInSubquery()
@@ -201,7 +201,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
             $table->gteSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLowerThan()
@@ -209,7 +209,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" < ?', $table->lt('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLowerThanInSubquery()
@@ -222,7 +222,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
             $table->ltSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLowerThanOrEqual()
@@ -230,7 +230,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" <= ?', $table->lte('a', 5)->buildSelectQuery());
-        $this->assertEquals(array(5), $table->condition->getValues());
+        $this->assertEquals(array(5), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionLowerThanEqualInSubquery()
@@ -243,7 +243,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
             $table->lteSubquery('a', $subquery)->buildSelectQuery()
         );
 
-        $this->assertEquals(array('e'), $table->condition->getValues());
+        $this->assertEquals(array('e'), $table->getConditionBuilder()->getValues());
     }
 
     public function testConditionIsNull()
@@ -251,7 +251,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" IS NOT NULL', $table->notNull('a')->buildSelectQuery());
-        $this->assertEquals(array(), $table->condition->getValues());
+        $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
     public function testCustomCondition()
@@ -259,7 +259,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE a=c AND "b" = ?', $table->addCondition('a=c')->eq('b', 4)->buildSelectQuery());
-        $this->assertEquals(array(4), $table->condition->getValues());
+        $this->assertEquals(array(4), $table->getConditionBuilder()->getValues());
     }
 
     public function testOrConditions()
@@ -267,7 +267,7 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $table = $this->db->table('test');
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" IS NOT NULL AND ("b" = ? OR "c" >= ?)', $table->notNull('a')->beginOr()->eq('b', 2)->gte('c', 5)->closeOr()->buildSelectQuery());
-        $this->assertEquals(array(2, 5), $table->condition->getValues());
+        $this->assertEquals(array(2, 5), $table->getConditionBuilder()->getValues());
     }
 
     public function testInsertUpdate()

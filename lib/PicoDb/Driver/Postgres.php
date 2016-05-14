@@ -8,7 +8,7 @@ use PDOException;
 /**
  * Postgres Driver
  *
- * @package PicoDb
+ * @package PicoDb\Driver
  * @author  Frederic Guillot
  */
 class Postgres extends Base
