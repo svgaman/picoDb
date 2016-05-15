@@ -97,7 +97,7 @@ class LargeObject extends Table
      */
     public function insertFromFile($blobColumn, $filename, array $data = array())
     {
-        $fp = fopen($filename, 'r');
+        $fp = fopen($filename, 'rb');
         $result = $this->insertFromStream($blobColumn, $fp, $data);
         fclose($fp);
         return $result;
