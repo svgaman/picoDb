@@ -61,9 +61,9 @@ class LargeObject extends Table
      * Insert large object from stream
      *
      * @access public
-     * @param  string   $blobColumn
-     * @param  resource $blobDescriptor
-     * @param  array    $data
+     * @param  string           $blobColumn
+     * @param  resource|string  $blobDescriptor
+     * @param  array            $data
      * @return bool
      */
     public function insertFromStream($blobColumn, &$blobDescriptor, array $data = array())
@@ -101,6 +101,20 @@ class LargeObject extends Table
         $result = $this->insertFromStream($blobColumn, $fp, $data);
         fclose($fp);
         return $result;
+    }
+
+    /**
+     * Insert large object from string
+     *
+     * @access public
+     * @param  string $blobColumn
+     * @param  string $blobData
+     * @param  array $data
+     * @return bool
+     */
+    public function insertFromString($blobColumn, &$blobData, array $data = array())
+    {
+        return $this->insertFromStream($blobColumn, $blobData, $data);
     }
 
     /**

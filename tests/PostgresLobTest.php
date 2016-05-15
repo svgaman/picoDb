@@ -24,6 +24,13 @@ class PostgresLobTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
+    public function testInsertFromString()
+    {
+        $data = 'test';
+        $result = $this->db->largeObject('large_objects')->insertFromString('file_content', $data, array('id' => 'test'));
+        $this->assertTrue($result);
+    }
+
     public function testInsertWithOptionalParams()
     {
         $result = $this->db->largeObject('large_objects')->insertFromFile('file_content', __FILE__);
