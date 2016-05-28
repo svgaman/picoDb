@@ -176,7 +176,7 @@ class Database
      */
     public function getLastId()
     {
-        return $this->driver->getLastId();
+        return (int) $this->driver->getLastId();
     }
 
     /**

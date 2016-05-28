@@ -18,6 +18,7 @@ class PostgresTableTest extends PHPUnit_Framework_TestCase
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS test1');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS test2');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS foobar');
+        $this->db->getConnection()->exec('DROP TABLE IF EXISTS foobar_persist');
         $this->db->getConnection()->exec('DROP TABLE IF EXISTS schema_version');
     }
 
@@ -220,6 +221,12 @@ class PostgresTableTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('SELECT * FROM "test"   WHERE "a" IS NOT NULL AND ("b" = ? OR "c" >= ?)', $table->notNull('a')->beginOr()->eq('b', 2)->gte('c', 5)->closeOr()->buildSelectQuery());
         $this->assertEquals(array(2, 5), $table->getConditionBuilder()->getValues());
+    }
+
+    public function testPersist()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar_persist (id SERIAL PRIMARY KEY, a VARCHAR(10))'));
+        $this->assertSame(1, $this->db->table('foobar_persist')->persist(array('a' => 'b')));
     }
 
     public function testInsertUpdate()

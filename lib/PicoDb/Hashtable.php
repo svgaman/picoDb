@@ -34,7 +34,7 @@ class Hashtable extends Table
      *
      * @access public
      * @param  string  $column
-     * @return Table
+     * @return $this
      */
     public function columnKey($column)
     {
@@ -47,7 +47,7 @@ class Hashtable extends Table
      *
      * @access public
      * @param  string  $column
-     * @return Table
+     * @return $this
      */
     public function columnValue($column)
     {

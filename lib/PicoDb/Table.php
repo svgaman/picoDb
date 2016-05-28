@@ -238,6 +238,22 @@ class Table
     }
 
     /**
+     * Insert a new row and return the ID of the primary key
+     *
+     * @access public
+     * @param  array $data
+     * @return bool|int
+     */
+    public function persist(array $data)
+    {
+        if ($this->insert($data)) {
+            return $this->db->getLastId();
+        }
+
+        return false;
+    }
+
+    /**
      * Remove
      *
      * @access public

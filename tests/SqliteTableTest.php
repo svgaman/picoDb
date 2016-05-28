@@ -270,6 +270,12 @@ class SqliteTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(2, 5), $table->getConditionBuilder()->getValues());
     }
 
+    public function testPersist()
+    {
+        $this->assertNotFalse($this->db->execute('CREATE TABLE foobar_persist (id INTEGER PRIMARY KEY, a TEXT)'));
+        $this->assertSame(1, $this->db->table('foobar_persist')->persist(array('a' => 'b')));
+    }
+
     public function testInsertUpdate()
     {
         $this->assertNotFalse($this->db->execute('CREATE TABLE foobar (a TEXT)'));
