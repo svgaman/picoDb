@@ -62,8 +62,7 @@ class PostgresDatabaseTest extends PHPUnit_Framework_TestCase
 
     public function testThatTransactionReturnsAValue()
     {
-        $this->assertEquals('a', $this->db->transaction(function ($db) {
-
+        $this->assertEquals('a', $this->db->transaction(function (Database $db) {
             $db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
             $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
 
@@ -73,7 +72,7 @@ class PostgresDatabaseTest extends PHPUnit_Framework_TestCase
 
     public function testThatTransactionReturnsTrue()
     {
-        $this->assertTrue($this->db->transaction(function ($db) {
+        $this->assertTrue($this->db->transaction(function (Database $db) {
             $db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
             $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
         }));
@@ -84,14 +83,14 @@ class PostgresDatabaseTest extends PHPUnit_Framework_TestCase
      */
     public function testThatTransactionThrowExceptionWhenRollbacked()
     {
-        $this->assertFalse($this->db->transaction(function ($db) {
+        $this->assertFalse($this->db->transaction(function (Database $db) {
             $db->getConnection()->exec('CREATE TABL');
         }));
     }
 
     public function testThatTransactionReturnsFalseWhithDuplicateKey()
     {
-        $this->assertFalse($this->db->transaction(function ($db) {
+        $this->assertFalse($this->db->transaction(function (Database $db) {
             $db->getConnection()->exec('CREATE TABLE foobar (something TEXT UNIQUE)');
             $r1 = $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));
             $r2 = $db->execute('INSERT INTO foobar (something) VALUES (?)', array('a'));

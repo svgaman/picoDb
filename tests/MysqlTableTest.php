@@ -48,7 +48,7 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM `test`     ORDER BY `a` ASC', $this->db->table('test')->asc('a')->buildSelectQuery());
         $this->assertEquals('SELECT * FROM `test`     ORDER BY `a` ASC', $this->db->table('test')->orderBy('a', Table::SORT_ASC)->buildSelectQuery());
 
-        $this->assertEquals('SELECT * FROM `test`     ORDER BY `a` DESC', $this->db->table('test')->desc('a', Table::SORT_DESC)->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM `test`     ORDER BY `a` DESC', $this->db->table('test')->desc('a')->buildSelectQuery());
         $this->assertEquals('SELECT * FROM `test`     ORDER BY `a` DESC', $this->db->table('test')->orderBy('a', Table::SORT_DESC)->buildSelectQuery());
 
         $this->assertEquals('SELECT * FROM `test`     ORDER BY `a` ASC, `b` ASC', $this->db->table('test')->asc('a')->asc('b')->buildSelectQuery());
@@ -130,12 +130,12 @@ class MysqlTableTest extends PHPUnit_Framework_TestCase
     {
         $table = $this->db->table('test');
 
-        $this->assertEquals('SELECT * FROM `test`   WHERE `a` NOT IN (?, ?)', $table->notin('a', array('b', 'c'))->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM `test`   WHERE `a` NOT IN (?, ?)', $table->notIn('a', array('b', 'c'))->buildSelectQuery());
         $this->assertEquals(array('b', 'c'), $table->getConditionBuilder()->getValues());
 
         $table = $this->db->table('test');
 
-        $this->assertEquals('SELECT * FROM `test`', $table->notin('a', array())->buildSelectQuery());
+        $this->assertEquals('SELECT * FROM `test`', $table->notIn('a', array())->buildSelectQuery());
         $this->assertEquals(array(), $table->getConditionBuilder()->getValues());
     }
 
