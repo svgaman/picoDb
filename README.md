@@ -3,9 +3,6 @@ PicoDb
 
 PicoDb is a minimalist database query builder for PHP.
 
-[![Build Status](https://travis-ci.org/fguillot/picoDb.svg?branch=master)](https://travis-ci.org/fguillot/picoDb)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/fguillot/picoDb/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/fguillot/picoDb/?branch=master)
-
 Features
 --------
 
