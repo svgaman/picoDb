@@ -110,6 +110,10 @@ class Mysql extends Base
             $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $settings['verify_server_cert'];
         }
 
+        if (! empty($settings['case'])) {
+            $options[PDO::ATTR_CASE] = $settings['case'];
+        }
+
         return $options;
     }
 
