@@ -188,6 +188,7 @@ class Table
     public function setAlias($alias)
     {
         $this->tableAlias = $alias;
+        return $this;
     }
 
     /**
@@ -698,7 +699,7 @@ class Table
      * @return string
      */
     public function buildSelectQuery()
-    {
+    {        
         if (empty($this->sqlSelect)) {
             $this->columns = $this->db->escapeIdentifierList($this->columns);
             $this->sqlSelect = ($this->distinct ? 'DISTINCT ' : '').(empty($this->columns) ? '*' : implode(', ', $this->columns));
@@ -706,17 +707,33 @@ class Table
 
         $this->groupBy = $this->db->escapeIdentifierList($this->groupBy);
 
-        return trim(sprintf(
-            'SELECT %s FROM %s %s %s %s %s %s %s',
-            $this->sqlSelect,
-            $this->db->escapeIdentifier($this->name),
-            implode(' ', $this->joins),
-            $this->conditionBuilder->build(),
-            empty($this->groupBy) ? '' : 'GROUP BY '.implode(', ', $this->groupBy),
-            $this->sqlOrder,
-            $this->sqlLimit,
-            $this->sqlOffset
-        ));
+        if (!empty($this->tableAlias)) {
+          $sqlQuery = sprintf(
+              'SELECT %s FROM %s AS %s %s %s %s %s %s %s',
+              $this->sqlSelect,
+              $this->db->escapeIdentifier($this->name),
+              $this->db->escapeIdentifier($this->tableAlias),
+              implode(' ', $this->joins),
+              $this->conditionBuilder->build(),
+              empty($this->groupBy) ? '' : 'GROUP BY '.implode(', ', $this->groupBy),
+              $this->sqlOrder,
+              $this->sqlLimit,
+              $this->sqlOffset
+          );
+        } else {
+          $sqlQuery = sprintf(
+              'SELECT %s FROM %s %s %s %s %s %s %s',
+              $this->sqlSelect,
+              $this->db->escapeIdentifier($this->name),
+              implode(' ', $this->joins),
+              $this->conditionBuilder->build(),
+              empty($this->groupBy) ? '' : 'GROUP BY '.implode(', ', $this->groupBy),
+              $this->sqlOrder,
+              $this->sqlLimit,
+              $this->sqlOffset
+          );
+        }
+        return trim($sqlQuery);
     }
 
     /**
