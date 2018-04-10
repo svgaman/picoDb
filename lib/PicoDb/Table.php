@@ -476,12 +476,23 @@ class Table
      */
     public function join($table, $foreign_column, $local_column, $local_table = '', $alias = '')
     {
-        $this->joins[] = sprintf(
-            'LEFT JOIN %s ON %s=%s',
-            $this->db->escapeIdentifier($table),
-            $this->db->escapeIdentifier($alias ?: $table).'.'.$this->db->escapeIdentifier($foreign_column),
-            $this->db->escapeIdentifier($local_table ?: $this->name).'.'.$this->db->escapeIdentifier($local_column)
-        );
+        if (!empty($alias)) {
+          $this->joins[] = sprintf(
+              'LEFT JOIN %s AS %s ON %s=%s',
+              $this->db->escapeIdentifier($table),
+              $this->db->escapeIdentifier($alias),
+              $this->db->escapeIdentifier($alias ?: $table).'.'.$this->db->escapeIdentifier($foreign_column),
+              $this->db->escapeIdentifier($local_table ?: $this->name).'.'.$this->db->escapeIdentifier($local_column)
+          );
+
+        } else {
+          $this->joins[] = sprintf(
+              'LEFT JOIN %s ON %s=%s',
+              $this->db->escapeIdentifier($table),
+              $this->db->escapeIdentifier($alias ?: $table).'.'.$this->db->escapeIdentifier($foreign_column),
+              $this->db->escapeIdentifier($local_table ?: $this->name).'.'.$this->db->escapeIdentifier($local_column)
+          );
+        }
 
         return $this;
     }
