@@ -70,6 +70,12 @@ class Table
      * @var    string
      */
     protected $name = '';
+    
+    /**
+     * Main Table Alias
+     * @var    string
+     */
+    private $tableAlias = '';
 
     /**
      * Columns list for SELECT query
@@ -174,6 +180,14 @@ class Table
     public function getName()
     {
         return $this->name;
+    }
+    
+    /**
+     * Set main table alias
+     */
+    public function setAlias($alias)
+    {
+        $this->tableAlias = $alias;
     }
 
     /**
