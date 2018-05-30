@@ -1,7 +1,7 @@
 {
-    "name": "fguillot/picodb",
+    "name": "svgaman/picodb",
     "description": "Minimalist database query builder",
-    "homepage": "https://github.com/fguillot/picoDb",
+    "homepage": "https://github.com/svgaman/picoDb",
     "type": "library",
     "license": "MIT",
     "authors": [
