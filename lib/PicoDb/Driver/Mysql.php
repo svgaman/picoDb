@@ -114,6 +114,10 @@ class Mysql extends Base
             $options[PDO::ATTR_CASE] = $settings['case'];
         }
 
+        if (! empty($settings['attr_errmode'])) {
+            $options[PDO::ATTR_ERRMODE] = $settings['attr_errmode'];
+        }
+
         return $options;
     }
 
