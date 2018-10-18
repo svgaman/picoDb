@@ -326,6 +326,16 @@ class ConditionBuilder
         $this->addCondition($this->db->escapeIdentifier($column).' >= ('.$subquery->buildSelectQuery().')');
         $this->values = array_merge($this->values, $subquery->getConditionBuilder()->getValues());
     }
+    
+    /**
+     * Greater than or equal NOW()
+     * @access public
+     * @param  string   $column
+     */
+    public function gteNow($column)
+    {
+        $this->addCondition($this->db->escapeIdentifier($column).' >= NOW()');
+    }
 
     /**
      * Lower than or equals condition
