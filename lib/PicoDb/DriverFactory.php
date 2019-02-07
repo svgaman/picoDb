@@ -5,6 +5,7 @@ namespace PicoDb;
 use LogicException;
 use PicoDb\Driver\Mssql;
 use PicoDb\Driver\Mysql;
+use PicoDb\Driver\Oracle;
 use PicoDb\Driver\Postgres;
 use PicoDb\Driver\Sqlite;
 
@@ -36,6 +37,8 @@ class DriverFactory
                 return new Mssql($settings);
             case 'mysql':
                 return new Mysql($settings);
+            case 'oracle':
+                return new Oracle($settings);
             case 'postgres':
                 return new Postgres($settings);
             default:
