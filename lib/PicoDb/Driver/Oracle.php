@@ -115,6 +115,10 @@ class Oracle extends Base
         if (!empty($settings['nlssort'])) {
             $this->pdo->exec('ALTER SESSION SET NLS_SORT = ' . $settings['nlssort']);
         }
+
+        if (!empty($settings['nls_numeric_characters'])) {
+            $this->pdo->exec('ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ' . $settings['nls_numeric_characters']);
+        }
     }
 
     /**
