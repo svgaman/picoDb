@@ -283,7 +283,12 @@ class Table
         );
 
         $result = $this->db->execute($sql, $this->conditionBuilder->getValues());
-        return $result->rowCount() > 0;
+
+        if ($result !== false) {
+            return $result->rowCount() > 0;
+        }
+
+        return false;
     }
 
     /**
